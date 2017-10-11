@@ -665,17 +665,20 @@ def main():
     parser.add_argument("start_doy", nargs='?',type=int, default=None, help="start day of processing. *Note: leave blank for Real-time")
     parser.add_argument("end_doy", nargs='?',type=int, default=None, help="end day of processing. *Note: leave blank for Real-time")
     parser.add_argument("download_url", nargs='?',type=str, default=None, help="download url from CLASS e-mail. *Note: leave blank for Real-time")
+    parser.add_argument('-t','--tiles', nargs='*',type=int, default=None, help='list of tiles')
     args = parser.parse_args()
     year= args.year
     start_doy = args.start_doy
     end_doy= args.end_doy
     download_url = args.download_url
+    tiles = args.tiles
  
     if start_doy == None:
         start = timer.time()
         runProcess(tiles)
         end = timer.time()
         print("program duration: %f minutes" % ((end - start)/60.))
+        tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]  
     else:
         days = range(start_doy,end_doy)
         start = timer.time()
