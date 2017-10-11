@@ -362,6 +362,7 @@ def getCFSRInsolation(tile,year=None,doy=None):
     firstHR = getGrabTimeInv(grab_time/100,doy)
     grab_time = getGrabTime((t_end+1)*100)
     lastHR = getGrabTimeInv(grab_time/100,doy_end)
+    print doy, doy_end
     print firstHR, lastHR
     
     if doy_end>doy:
@@ -371,7 +372,7 @@ def getCFSRInsolation(tile,year=None,doy=None):
         doy1 = np.tile(doy,len(d1HRs))
         d2HRs = np.array(range(0,lastHR[0],3))
         if len(d2HRs)==0:
-            d2HRs=np.array(0)
+            d2HRs=np.array([0])
         doy2 = np.tile(doy_end,len(d2HRs))
         HRs=np.append(d1HRs,d2HRs)
         doys = np.append(doy1,doy2)
