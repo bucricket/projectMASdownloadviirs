@@ -669,7 +669,7 @@ def main():
     parser.add_argument("year", nargs='?', type=int, default=None, help="year of data")
     parser.add_argument("start_doy", nargs='?',type=int, default=None, help="start day of processing. *Note: leave blank for Real-time")
     parser.add_argument("end_doy", nargs='?',type=int, default=None, help="end day of processing. *Note: leave blank for Real-time")
-    parser.add_argument('-o','--orderIDs', nargs='*',type=str, default=None, help="list of order IDs from CLASS e-mail. *Note: leave blank for Real-time")
+    parser.add_argument('-o','--orderIDs', nargs='*',type=int, default=None, help="list of order IDs from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-t','--tiles', nargs='*',type=int, default=None, help='list of tiles')
     args = parser.parse_args()
     year= args.year
