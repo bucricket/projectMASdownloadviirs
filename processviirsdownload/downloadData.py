@@ -280,7 +280,7 @@ def downloadCFSRpython(hr1file,year=None,doy=None):
         day = dd.day
         url = realtimeURL+'cdas.%d%02d%02d/' % (year,month,day)
     else:
-        dd = datetime.datetime(year, 1, 1) + datetime.timedelta(doy)
+        dd = datetime.datetime(year, 1, 1) + datetime.timedelta(doy-1)
         if (datetime.date.today()-datetime.date(year,dd.month,dd.day)).days > 7:
             url = os.path.join(ncdcfluxURL,"%s" % year,"%d%02d" % (year,dd.month),
                                 "%d%02d%02d" % (year,dd.month,dd.day))
