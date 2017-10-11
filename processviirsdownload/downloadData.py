@@ -650,6 +650,11 @@ def runProcess(tiles,year=None,doy=None,downloadurl=None):
         getCFSRdata() 
         for tile in tiles:
             getCFSRInsolation(tile)
+    elif downloadurl==None:
+        downloadSubscriptionSDR(year,doy)
+        getCFSRdata(year,doy)
+        for tile in tiles:
+            getCFSRInsolation(tile,year,doy)
     else:
         downloadSubscriptionSDR(year,doy,downloadurl)
         getCFSRdata(year,doy)
@@ -664,29 +669,44 @@ def main():
     parser.add_argument("year", nargs='?', type=int, default=None, help="year of data")
     parser.add_argument("start_doy", nargs='?',type=int, default=None, help="start day of processing. *Note: leave blank for Real-time")
     parser.add_argument("end_doy", nargs='?',type=int, default=None, help="end day of processing. *Note: leave blank for Real-time")
-    parser.add_argument("download_url", nargs='?',type=str, default=None, help="download url from CLASS e-mail. *Note: leave blank for Real-time")
+    parser.add_argument('-o','--orderIDs', nargs='*',type=str, default=None, help="list of order IDs from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-t','--tiles', nargs='*',type=int, default=None, help='list of tiles')
     args = parser.parse_args()
     year= args.year
     start_doy = args.start_doy
     end_doy= args.end_doy
-    download_url = args.download_url
+    orderIDs = args.orderIDs
     tiles = args.tiles
- 
+
     if start_doy == None:
         tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         start = timer.time()
         runProcess(tiles)
         end = timer.time()
         print("program duration: %f minutes" % ((end - start)/60.))
-          
-    else:
+    elif orderIDs ==None:   
+        if tiles==None:
+            tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         days = range(start_doy,end_doy)
         start = timer.time()
         for doy in days:
-            runProcess(tiles,year,doy,download_url)
+            runProcess(tiles,year,doy)
         end = timer.time()
-        print("program duration: %f minutes" % ((end - start)/60.))       
+        print("program duration: %f minutes" % ((end - start)/60.)) 
+    else:
+        if tiles==None:
+            tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
+        for orderID in orderIDs:
+            download_url = 'http://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
+            if not listFD(download_url, 'h5'):
+                download_url = 'http://download.class.ngdc.noaa.gov/download/%d/001/' % orderID
+
+            days = range(start_doy,end_doy)
+            start = timer.time()
+            for doy in days:
+                runProcess(tiles,year,doy,download_url)
+            end = timer.time()
+            print("program duration: %f minutes" % ((end - start)/60.))       
 #end = timer.time()
 #print(end - start)
 #getInsolation('mschull','sushmaMITCH12',63)    
