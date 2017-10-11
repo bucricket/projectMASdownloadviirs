@@ -362,6 +362,7 @@ def getCFSRInsolation(tile,year=None,doy=None):
     firstHR = getGrabTimeInv(grab_time/100,doy)
     grab_time = getGrabTime((t_end+1)*100)
     lastHR = getGrabTimeInv(grab_time/100,doy_end)
+    doy_end = lastHR[2]
     print doy, doy_end
     print firstHR, lastHR
     
