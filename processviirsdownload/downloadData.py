@@ -702,6 +702,7 @@ def main():
                 download_url = 'http://download.class.ngdc.noaa.gov/download/%d/001/' % orderID
 
             days = range(start_doy,end_doy)
+            print download_url
             start = timer.time()
             for doy in days:
                 runProcess(tiles,year,doy,download_url)
