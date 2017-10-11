@@ -39,7 +39,7 @@ setup(
     description="downloads VIIRS data for ALEXI",
     author="Mitchell Schull",
     author_email="mitch.schull@noaa.gov",
-    url="https://github.com/bucricket/projectMASviirsdownload.git",
+    url="https://github.com/bucricket/projectMASdownloadviirs.git",
 #    py_modules=['processviirs'],
     packages= ['processviirsdownload'],
     platforms='Posix; MacOS X; Windows',
