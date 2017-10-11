@@ -316,7 +316,7 @@ def getCFSRInsolation(tile,year=None,doy=None):
         doy = (datetime.date.today()-datetime.date(year,1,1)).days
         dd = datetime.date.today()+datetime.timedelta(days=-1)
     else:
-        dd = datetime.datetime(year, 1, 1) + datetime.timedelta(doy)
+        dd = datetime.datetime(year, 1, 1) + datetime.timedelta(doy-1)
 
         
     dstpath =  os.path.join(CFSR_path,"%d" % year,"%03d" % doy)
