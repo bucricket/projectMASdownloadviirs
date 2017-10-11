@@ -377,6 +377,7 @@ def getCFSRInsolation(tile,year=None,doy=None):
     hrs = (HRs/6)*6
     forecastHRs = HRs-hrs
     outData = []
+    print HRs
     for i in range(len(HRs)):
 #        hrs = [0,0,6,6,12,12,18,18]
         hr = hrs[i]
