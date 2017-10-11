@@ -674,11 +674,12 @@ def main():
     tiles = args.tiles
  
     if start_doy == None:
+        tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         start = timer.time()
         runProcess(tiles)
         end = timer.time()
         print("program duration: %f minutes" % ((end - start)/60.))
-        tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]  
+          
     else:
         days = range(start_doy,end_doy)
         start = timer.time()
