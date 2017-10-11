@@ -17,21 +17,6 @@ except ImportError:
     
 from processviirsdownload import __version__
 
-#=====build DMS binaries===============================
-# get Anaconda root location
-p = subprocess.Popen(["conda", "info", "--root"],stdout=subprocess.PIPE)
-out = p.communicate()
-condaPath = out[0][:-1]
-    
-prefix  = os.environ.get('PREFIX')
-processDi = os.path.abspath(os.path.join(prefix,os.pardir))
-processDir = os.path.join(processDi,'work')
-libEnv = os.path.join(prefix,'lib')
-binEnv = os.path.join(prefix,'bin')
-libDir = os.path.join(processDir,'source','lib')
-binDir = os.path.join(processDir,'source','bin')
-distutils.dir_util.copy_tree(binDir,binEnv)
-
 
 setup(
     name="projectmasviirsdownload",
