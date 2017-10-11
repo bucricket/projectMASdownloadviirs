@@ -370,6 +370,8 @@ def getCFSRInsolation(tile,year=None,doy=None):
         d1HRs = np.array(range(firstHR[0],24,3))
         doy1 = np.tile(doy,len(d1HRs))
         d2HRs = np.array(range(0,lastHR[0],3))
+        if len(d2HRs)==0:
+            d2HRs=np.array(0)
         doy2 = np.tile(doy_end,len(d2HRs))
         HRs=np.append(d1HRs,d2HRs)
         doys = np.append(doy1,doy2)
