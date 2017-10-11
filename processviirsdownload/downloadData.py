@@ -677,7 +677,7 @@ def main():
     start_doy = args.start_doy
     end_doy= args.end_doy
     orderIDs = args.orderIDs
-    parentDir = args.parentDir
+    parentDir = args.parentDir[0]
     tiles = args.tiles
     print orderIDs
     if start_doy == None:
