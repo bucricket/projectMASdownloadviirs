@@ -677,7 +677,7 @@ def main():
     end_doy= args.end_doy
     orderIDs = args.orderIDs
     tiles = args.tiles
-
+    print orderIDs
     if start_doy == None:
         tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         start = timer.time()
