@@ -700,13 +700,13 @@ def main():
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         for orderID in orderIDs:
             if parentDir==None:
-                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
-                if not listFD(download_url, 'h5'):
-                    download_url = 'https://download.class.ngdc.noaa.gov/download/%d/001/' % orderID
+#                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
+#                if not listFD(download_url, 'h5'):
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/001/' % orderID
             else:
-                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
-                if not listFD(download_url, 'h5'):
-                    download_url = 'https://download.class.ngdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
+#                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
+#                if not listFD(download_url, 'h5'):
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
 
             days = range(start_doy,end_doy)
             print download_url
