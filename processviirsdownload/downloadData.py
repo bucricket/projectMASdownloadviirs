@@ -669,6 +669,7 @@ def main():
     parser.add_argument("year", nargs='?', type=int, default=None, help="year of data")
     parser.add_argument("start_doy", nargs='?',type=int, default=None, help="start day of processing. *Note: leave blank for Real-time")
     parser.add_argument("end_doy", nargs='?',type=int, default=None, help="end day of processing. *Note: leave blank for Real-time")
+    parser.add_argument('-p','--parentDir', nargs='*',type=int, default=None, help="parent director for large orders from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-o','--orderIDs', nargs='*',type=int, default=None, help="list of order IDs from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-t','--tiles', nargs='*',type=int, default=None, help='list of tiles')
     args = parser.parse_args()
@@ -676,6 +677,7 @@ def main():
     start_doy = args.start_doy
     end_doy= args.end_doy
     orderIDs = args.orderIDs
+    parentDir = args.parentDir
     tiles = args.tiles
     print orderIDs
     if start_doy == None:
@@ -697,9 +699,14 @@ def main():
         if tiles==None:
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         for orderID in orderIDs:
-            download_url = 'http://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
-            if not listFD(download_url, 'h5'):
-                download_url = 'http://download.class.ngdc.noaa.gov/download/%d/001/' % orderID
+            if parentDir==None:
+                download_url = 'http://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
+                if not listFD(download_url, 'h5'):
+                    download_url = 'http://download.class.ngdc.noaa.gov/download/%d/001/' % orderID
+            else:
+                download_url = 'http://download.class.ncdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
+                if not listFD(download_url, 'h5'):
+                    download_url = 'http://download.class.ngdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
 
             days = range(start_doy,end_doy)
             print download_url
