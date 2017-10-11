@@ -326,123 +326,123 @@ def getCFSRInsolation(tile,year=None,doy=None):
     tile_path = os.path.join(dstpath,"T%03d" % tile)
     if not os.path.exists(tile_path): 
         os.makedirs(tile_path)
-    
-    llLat,llLon = tile2latlon(tile)
-    ulx = llLon
-    uly = llLat+15.
-    lrx = llLon+15.
-    lry = llLat
-    nrow = 3750
-    ncol = 3750
     date = '%d%03d' % (year,doy)
-    inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-
-    date = "%d%03d" %(year,doy)
-    print "date:%s" % date
-    print("tile:T%03d" % tile)
-    print "============================================================"
-
-    o = ephem.Observer()
-    o.lat, o.long = '%3.2f' % (llLat+7.5), '%3.2f' % (llLon+7.5)
-    sun = ephem.Sun()
-    #================finding the local noon====================================
-    dd = datetime.datetime(dd.year,dd.month,dd.day,0,0)
-    sunrise = o.previous_rising(sun, start=dd)
-    noon = o.next_transit(sun, start=sunrise)
-    hr = noon.datetime().hour
-    #================finding the sunrise and sunset ===========================
-    dd = datetime.datetime(dd.year,dd.month,dd.day,hr,0)
-    sunrise = o.previous_rising(sun, start=dd)
-    t_rise = sunrise.datetime().hour
-    sunset = o.next_setting(sun, start=dd)
-    t_end = sunset.datetime().hour
-    doy_end = (sunset.datetime()-datetime.datetime(year,1,1)).days+1
-    
-    grab_time = getGrabTime((t_rise-1)*100)
-    firstHR = getGrabTimeInv(grab_time/100,doy)
-    grab_time = getGrabTime((t_end+1)*100)
-    lastHR = getGrabTimeInv(grab_time/100,doy_end)
-    doy_end = lastHR[2]
-    print doy, doy_end
-    print firstHR, lastHR
-    
-    if doy_end>doy:
-        HRs=[]
-        doys=[]
-        d1HRs = np.array(range(firstHR[0],24,3))
-        doy1 = np.tile(doy,len(d1HRs))
-        d2HRs = np.array(range(0,lastHR[0],3))
-        if len(d2HRs)==0:
-            d2HRs=np.array([0])
-        doy2 = np.tile(doy_end,len(d2HRs))
-        HRs=np.append(d1HRs,d2HRs)
-        doys = np.append(doy1,doy2)
-    else:
-        HRs = np.array(range(firstHR[0],lastHR[0]+1,3))
-        doys = np.tile(doy,len(HRs))
-    hrs = (HRs/6)*6
-    forecastHRs = HRs-hrs
-    outData = []
-    print HRs
-    for i in range(len(HRs)):
-#        hrs = [0,0,6,6,12,12,18,18]
-        hr = hrs[i]
-        doy = doys[i]
-#        forcastHRs = [0,3,0,3,0,3,0,3]
-        tile_path = os.path.join(dstpath,"T%03d" % tile)
-        if not os.path.exists(tile_path): 
-            os.makedirs(tile_path)
-        dstpath =  os.path.join(CFSR_path,"%d" % year,"%03d" % doy)
-        if not os.path.exists(dstpath):
-            os.makedirs(dstpath)
-        forecastHR = forecastHRs[i]
-        hr1file = 'cdas1.t%02dz.sfluxgrbf%02d.grib2' % (hr,forecastHR)
-        downloadCFSRpython(hr1file,year,doy)
-#        print url
-#        pydapURL = os.path.join(url,hr1file)
-        outFN = os.path.join(dstpath,hr1file)
-
-        cfsr_out = os.path.join(tile_path, "CFSR_INSOL_%d%03d_%02d00_00%d.tif" % (year,doy,hr,forecastHR))
-        cfsr_outvrt = os.path.join(tile_path,"CFSR_INSOL_%d%03d_%02d00_00%d.vrt" % (year,doy,hr,forecastHR))
-#        if not os.path.exists(outFN):
-#            print "downloading file...%s" % hr1file
-#            getHTTPdata(pydapURL,outFN)
-            
-            #------download file                
-    
-#        print "processing file...%s" % hr1file   
-        dataset = gdal.Open(outFN, gdal.GA_ReadOnly)
-        ##=====find correct dataset from grib===============
-        for bandNum  in range(90,100): # use this range because file is towrds the end
-            band = dataset.GetRasterBand(bandNum)
-            if (band.GetMetadata_List()[0]=='GRIB_COMMENT=Downward Short-Wave Rad. Flux [W/(m^2)]'):
-                subprocess.check_output(["gdal_translate", "-of", "vrt", "-b",
-                                         "%d" % bandNum,"-r", "bilinear",
-                                         "%s" % outFN, "%s" % cfsr_outvrt])
-                subprocess.check_output(["gdalwarp", "-overwrite", "-t_srs", 
-                                         '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
-                                         "%s" % cfsr_outvrt, "%s" % cfsr_out,"-wo",
-                                         "SOURCE_EXTRA=1000","--config",
-                                         "CENTER_LONG", "0","-te", "%d"  % ulx,
-                                         "%d" % lry,"%d" % lrx, "%d" % uly,"-tr", 
-                                         "0.004", "0.004"])
-        
-#            gdalwarp -t_srs '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs' test.vrt test3.tif -wo SOURCE_EXTRA=1000 --config CENTER_LONG 0 -te -15.0 30.0 0.0 45.0 -tr 0.004 0.004
-        g = gdal.Open(cfsr_out, gdal.GA_ReadOnly)
-        data = g.ReadAsArray()
-        outData.append(np.reshape(data,[nrow*ncol]))
     outDIR = os.path.join(static_path,'INSOL24')
     if not os.path.exists(outDIR): 
         os.makedirs(outDIR)
-    outFN = os.path.join(outDIR, 'RS24_%s_T%03d.tif' % (date,tile))       
-    aa = np.array(outData)
-    rs24 = np.sum(aa,axis=0)
-    rs24 = np.reshape(rs24,[nrow, ncol])
-    outFormat = gdal.GDT_Float32
-    inUL = [ulx,uly]
-    inRes = [0.004,0.004]
-    writeArray2Tiff(rs24,inRes,inUL,inProj4,outFN,outFormat)
-    print "finished INSOL!"
+    outFN = os.path.join(outDIR, 'RS24_%s_T%03d.tif' % (date,tile))
+    if not os.path.exists(outFN):    # If it exists skip
+        llLat,llLon = tile2latlon(tile)
+        ulx = llLon
+        uly = llLat+15.
+        lrx = llLon+15.
+        lry = llLat
+        nrow = 3750
+        ncol = 3750
+        inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+    
+        print "date:%s" % date
+        print("tile:T%03d" % tile)
+        print "============================================================"
+    
+        o = ephem.Observer()
+        o.lat, o.long = '%3.2f' % (llLat+7.5), '%3.2f' % (llLon+7.5)
+        sun = ephem.Sun()
+        #================finding the local noon====================================
+        dd = datetime.datetime(dd.year,dd.month,dd.day,0,0)
+        sunrise = o.previous_rising(sun, start=dd)
+        noon = o.next_transit(sun, start=sunrise)
+        hr = noon.datetime().hour
+        #================finding the sunrise and sunset ===========================
+        dd = datetime.datetime(dd.year,dd.month,dd.day,hr,0)
+        sunrise = o.previous_rising(sun, start=dd)
+        t_rise = sunrise.datetime().hour
+        sunset = o.next_setting(sun, start=dd)
+        t_end = sunset.datetime().hour
+        doy_end = (sunset.datetime()-datetime.datetime(year,1,1)).days+1
+        
+        grab_time = getGrabTime((t_rise-1)*100)
+        firstHR = getGrabTimeInv(grab_time/100,doy)
+        grab_time = getGrabTime((t_end+1)*100)
+        lastHR = getGrabTimeInv(grab_time/100,doy_end)
+        doy_end = lastHR[2]
+        print doy, doy_end
+        print firstHR, lastHR
+        
+        if doy_end>doy:
+            HRs=[]
+            doys=[]
+            d1HRs = np.array(range(firstHR[0],24,3))
+            doy1 = np.tile(doy,len(d1HRs))
+            d2HRs = np.array(range(0,lastHR[0],3))
+            if len(d2HRs)==0:
+                d2HRs=np.array([0])
+            doy2 = np.tile(doy_end,len(d2HRs))
+            HRs=np.append(d1HRs,d2HRs)
+            doys = np.append(doy1,doy2)
+        else:
+            HRs = np.array(range(firstHR[0],lastHR[0]+1,3))
+            doys = np.tile(doy,len(HRs))
+        hrs = (HRs/6)*6
+        forecastHRs = HRs-hrs
+        outData = []
+        print HRs
+        for i in range(len(HRs)):
+    #        hrs = [0,0,6,6,12,12,18,18]
+            hr = hrs[i]
+            doy = doys[i]
+    #        forcastHRs = [0,3,0,3,0,3,0,3]
+            tile_path = os.path.join(dstpath,"T%03d" % tile)
+            if not os.path.exists(tile_path): 
+                os.makedirs(tile_path)
+            dstpath =  os.path.join(CFSR_path,"%d" % year,"%03d" % doy)
+            if not os.path.exists(dstpath):
+                os.makedirs(dstpath)
+            forecastHR = forecastHRs[i]
+            hr1file = 'cdas1.t%02dz.sfluxgrbf%02d.grib2' % (hr,forecastHR)
+            downloadCFSRpython(hr1file,year,doy)
+    #        print url
+    #        pydapURL = os.path.join(url,hr1file)
+            gribFN = os.path.join(dstpath,hr1file)
+    
+            cfsr_out = os.path.join(tile_path, "CFSR_INSOL_%d%03d_%02d00_00%d.tif" % (year,doy,hr,forecastHR))
+            cfsr_outvrt = os.path.join(tile_path,"CFSR_INSOL_%d%03d_%02d00_00%d.vrt" % (year,doy,hr,forecastHR))
+    #        if not os.path.exists(outFN):
+    #            print "downloading file...%s" % hr1file
+    #            getHTTPdata(pydapURL,outFN)
+                
+                #------download file                
+        
+    #        print "processing file...%s" % hr1file   
+            dataset = gdal.Open(gribFN, gdal.GA_ReadOnly)
+            ##=====find correct dataset from grib===============
+            for bandNum  in range(90,100): # use this range because file is towrds the end
+                band = dataset.GetRasterBand(bandNum)
+                if (band.GetMetadata_List()[0]=='GRIB_COMMENT=Downward Short-Wave Rad. Flux [W/(m^2)]'):
+                    subprocess.check_output(["gdal_translate", "-of", "vrt", "-b",
+                                             "%d" % bandNum,"-r", "bilinear",
+                                             "%s" % gribFN, "%s" % cfsr_outvrt])
+                    subprocess.check_output(["gdalwarp", "-overwrite", "-t_srs", 
+                                             '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+                                             "%s" % cfsr_outvrt, "%s" % cfsr_out,"-wo",
+                                             "SOURCE_EXTRA=1000","--config",
+                                             "CENTER_LONG", "0","-te", "%d"  % ulx,
+                                             "%d" % lry,"%d" % lrx, "%d" % uly,"-tr", 
+                                             "0.004", "0.004"])
+            
+    #            gdalwarp -t_srs '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs' test.vrt test3.tif -wo SOURCE_EXTRA=1000 --config CENTER_LONG 0 -te -15.0 30.0 0.0 45.0 -tr 0.004 0.004
+            g = gdal.Open(cfsr_out, gdal.GA_ReadOnly)
+            data = g.ReadAsArray()
+            outData.append(np.reshape(data,[nrow*ncol]))
+           
+        aa = np.array(outData)
+        rs24 = np.sum(aa,axis=0)
+        rs24 = np.reshape(rs24,[nrow, ncol])
+        outFormat = gdal.GDT_Float32
+        inUL = [ulx,uly]
+        inRes = [0.004,0.004]
+        writeArray2Tiff(rs24,inRes,inUL,inProj4,outFN,outFormat)
+        print "finished INSOL!"
     
 def write_gen_sfc_prof(path,date,hr):
     fn = os.path.join(path,'gen_sfc_prof_fields.gs')
