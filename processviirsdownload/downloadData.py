@@ -702,11 +702,11 @@ def main():
             if parentDir==None:
 #                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
 #                if not listFD(download_url, 'h5'):
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/001/' % orderID
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%d' % orderID
             else:
 #                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
 #                if not listFD(download_url, 'h5'):
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/%d' % (parentDir,orderID)
 
             days = range(start_doy,end_doy)
             print download_url
