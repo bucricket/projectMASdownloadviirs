@@ -692,7 +692,7 @@ def main():
     start_doy = args.start_doy
     end_doy= args.end_doy
     orderIDs = args.orderIDs
-    parentDir = args.parentDir[0]
+    parentDir = args.parentDir
     tiles = args.tiles
     print orderIDs
     if start_doy == None:
@@ -719,6 +719,7 @@ def main():
 #                if not listFD(download_url, 'h5'):
                 download_url = 'https://download.class.ngdc.noaa.gov/download/%d/001' % orderID
             else:
+                parentDir = args.parentDir[0]
 #                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
 #                if not listFD(download_url, 'h5'):
                 download_url = 'https://download.class.ngdc.noaa.gov/download/%d/%d/001' % (parentDir,orderID)
