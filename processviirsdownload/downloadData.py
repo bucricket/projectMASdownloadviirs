@@ -175,11 +175,25 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
     if url==None: # Use subscription
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85113/'
 
-    for fn in listFD(url, ext):
-        print fn
-        fileName = str(fn.split('/')[-1])  
-        if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-#            filePath = os.path.join(outPath,'%s' % fileName.split('_')[0])
+        for fn in listFD(url, ext):
+            print fn
+            fileName = str(fn.split('/')[-1])  
+            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
+    #            filePath = os.path.join(outPath,'%s' % fileName.split('_')[0])
+                if not os.path.exists(filePath):
+                    os.makedirs(filePath)
+            
+                outName=os.path.join(filePath,fileName)
+                
+                if not os.path.isfile(outName):
+                    print "downloading:  %s" % fileName
+                    #wget.download(url+fileName,out=outName)
+                    urllib.urlretrieve(url+fileName, outName)
+    else:
+        for fn in listFD(url, ext):
+            print fn
+            fileName = str(fn.split('/')[-1])  
+
             if not os.path.exists(filePath):
                 os.makedirs(filePath)
         
@@ -208,6 +222,7 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
                     print "downloading:  %s" % fileName
                     #wget.download(url+fileName,out=outName)
                     urllib.urlretrieve(url+fileName, outName)
+                    
                 
                 
 def getInsolation(earthLoginUser,earthLoginPass,tile,year=None,doy=None):
