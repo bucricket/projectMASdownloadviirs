@@ -719,7 +719,7 @@ def main():
         if tiles==None:
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         for orderID in orderIDs:
-            url = 'https://download.class.ngdc.noaa.gov/download/%d' % orderID
+            url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
             if '/' in listOrderDir(url, orderID)[0]:
                 for order in listOrderDir(url, orderID):
                     download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001' % str(order)
@@ -731,7 +731,7 @@ def main():
                 end = timer.time()
                 print("program duration: %f minutes" % ((end - start)/60.))
             else:
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/001' % orderID
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001' % orderID
                 
 #            if parentDir==None:
 ##                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
