@@ -723,6 +723,7 @@ def main():
                     start = timer.time()
                     for doy in days:
                         runProcess(tiles,year,doy,download_url)
+                createDB()
                 end = timer.time()
                 print("program duration: %f minutes" % ((end - start)/60.))
             else:
