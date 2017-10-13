@@ -735,7 +735,7 @@ def main():
             url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
             if '/' in listOrderDir(url, orderID)[0]:
                 for order in listOrderDir(url, orderID):
-                    download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001' % str(order)
+                    download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001/' % str(order)
                     days = range(start_doy,end_doy)
                     print download_url
                     start = timer.time()
@@ -745,7 +745,7 @@ def main():
                 end = timer.time()
                 print("program duration: %f minutes" % ((end - start)/60.))
             else:
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001' % orderID
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001/' % orderID
                 
 #            if parentDir==None:
 ##                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
