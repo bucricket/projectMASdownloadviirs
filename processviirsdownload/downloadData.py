@@ -181,7 +181,6 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85113/'
 
         for fn in listFD(url, ext):
-            print fn
             fileName = str(fn.split('/')[-1])  
             if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
     #            filePath = os.path.join(outPath,'%s' % fileName.split('_')[0])
@@ -196,7 +195,6 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
                     urllib.urlretrieve(url+fileName, outName)
     else:
         for fn in listFD(url, ext):
-            print fn
             fileName = str(fn.split('/')[-1])  
 
             if not os.path.exists(filePath):
@@ -214,7 +212,6 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85123/'
         
         for fn in listFD(url, ext):
-            print fn
             fileName = str(fn.split('/')[-1])  
             if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
     #            filePath = os.path.join(outPath,'%s' % fileName.split('_')[0])
