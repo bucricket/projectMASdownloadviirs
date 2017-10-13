@@ -203,6 +203,7 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
             outName=os.path.join(filePath,fileName)
             
             if not os.path.isfile(outName):
+                print url+fileName
                 print "downloading:  %s" % fileName
                 #wget.download(url+fileName,out=outName)
                 urllib.urlretrieve(url+fileName, outName)
@@ -734,7 +735,7 @@ def main():
             url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
             if '/' in listOrderDir(url, orderID)[0]:
                 for order in listOrderDir(url, orderID):
-                    download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001' % str(order)
+                    download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % str(order)
                     days = range(start_doy,end_doy)
                     print download_url
                     start = timer.time()
@@ -744,7 +745,7 @@ def main():
                 end = timer.time()
                 print("program duration: %f minutes" % ((end - start)/60.))
             else:
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001' % orderID
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
                 
 #            if parentDir==None:
 ##                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
