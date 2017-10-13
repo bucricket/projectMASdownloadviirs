@@ -633,37 +633,30 @@ def getCFSRdata(year=None,doy=None):
     #        moveFiles(os.getcwd(),dstpath,date,forcastHR,hr,"dat")
             moveFiles(os.getcwd(),dstpath,date,hr)
     print "finished processing!"
+def createDB():
+    df = pd.DataFrame()
+    parDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+    for dirpath, dirnames, filenames in os.walk(parDir):
+        try:
+            for filename in [f for f in filenames if ((f.split("_")[0].split(".")[1] == "SVI05") and f.endswith(".h5"))]:
+                try:
+                    df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+                    df = df.append(df1, ignore_index=True)
+                except: 
+                  pass
+        except:
+            for filename in [f for f in filenames if (f.startswith("SVI05") and f.endswith(".h5"))]:
+                try:
+                    df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+                    df = df.append(df1, ignore_index=True)
+                except: 
+                  pass
+    database = os.path.join(data_path,'I5_database.csv')
+    df.to_csv(database, index=False)
+    print "all done!!"
+    
 start = timer.time()
-tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]   
-#year = 2015
-#doy = 221             
-#downloadSubscriptionSDR()   
-#dd = datetime.date.today()+datetime.timedelta(days=-1)
-#data_cache = os.path.join(data_path,"%d" % dd.year,"%02d" % dd.month)
-#
-#for dirpath, dirnames, filenames in os.walk(data_cache):
-#    try:
-#        for filename in [f for f in filenames if ((f.split("_")[0].split(".")[1] == "SVI05") and f.endswith(".h5"))]:
-#            try:
-#                get_VIIRS_bounds(os.path.join(dirpath, filename))
-#            except: 
-#              pass
-#    except:
-#        for filename in [f for f in filenames if (f.startswith("SVI05") and f.endswith(".h5"))]:
-#            try:
-#                get_VIIRS_bounds(os.path.join(dirpath, filename))
-#            except: 
-#              pass
-#print "all done!!"
-#year = 2015
-#days = range(227,228)
-#for doy in days:
-#    getCFSRdata(year,doy) 
-##    downloadCFSRpython(year,doy)
-#    #getCFSRInsolation(63)
-#    #r = Parallel(n_jobs=-1, verbose=5)(delayed(getCFSRInsolation)(tile) for tile in tiles)
-#    for tile in tiles:
-#        getCFSRInsolation(tile,year,doy)
+
 def runProcess(tiles,year=None,doy=None,downloadurl=None):
     if year==None: # if None assume its real-time processing 
         downloadSubscriptionSDR()
@@ -704,6 +697,7 @@ def main():
         tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         start = timer.time()
         runProcess(tiles)
+        createDB()
         end = timer.time()
         print("program duration: %f minutes" % ((end - start)/60.))
     elif orderIDs ==None:   
@@ -713,6 +707,7 @@ def main():
         start = timer.time()
         for doy in days:
             runProcess(tiles,year,doy)
+        createDB()
         end = timer.time()
         print("program duration: %f minutes" % ((end - start)/60.)) 
     else:
@@ -748,6 +743,7 @@ def main():
                 start = timer.time()
                 for doy in days:
                     runProcess(tiles,year,doy,download_url)
+                createDB()
                 end = timer.time()
                 print("program duration: %f minutes" % ((end - start)/60.))       
    
