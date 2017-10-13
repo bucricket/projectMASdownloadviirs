@@ -128,6 +128,7 @@ def tile2latlon(tile):
     lat= (75.-row*15.)-15.
     lon=(col*15.-180.)-15. 
     return [lat,lon]
+       
 
 def get_VIIRS_bounds(fn):
     f = h5py.File(fn, 'r')
@@ -145,22 +146,21 @@ def get_VIIRS_bounds(fn):
     north = north.max()
     south = south.min()
     date = f['Data_Products']['VIIRS-I5-SDR']['VIIRS-I5-SDR_Gran_0'].attrs['Beginning_Date'][0][0]
+    year = int(date[:4])
+    month = int(date[4:6])
+    day = int(date[6:])
+    dd = datetime.datetime(year,month,day)
+    doy = ((dd-datetime.datetime(year,1,1)).days)+1
     N_Day_Night_Flag = f['Data_Products']['VIIRS-I5-SDR']['VIIRS-I5-SDR_Gran_0'].attrs['N_Day_Night_Flag'][0][0]
-    bounds = {'filename':fn,'east':east,'west':west,'north':north,'south':south,
-              'N_Day_Night_Flag':N_Day_Night_Flag,'date':date}
-    database = os.path.join(data_path,'I5_database.csv')
-    if not os.path.exists(database):
-        with open(database, 'wb') as f:  # Just use 'w' mode in 3.x
-            w = csv.DictWriter(f, bounds.keys())
-            w.writeheader()
-            w.writerow(bounds)
-    else:
-        print("writing")
-        with open(database, 'ab') as f:  # Just use 'w' mode in 3.x
-            w = csv.DictWriter(f, bounds.keys())
-            w.writerow(bounds)
-            
-    return        
+    bounds1 = {'filename':[fn],'N_Day_Night_Flag':[N_Day_Night_Flag]}
+    bounds2 = {'east':[east],'west':[west],'north':[north],'south':[south]}
+    bounds3 = {'doy':[doy],'year':[year]}
+
+    df1 = pd.DataFrame.from_dict(bounds1) 
+    df2 = pd.DataFrame.from_dict(bounds2) 
+    df3 = pd.DataFrame.from_dict(bounds3)
+    dictDF = pd.concat([df1,df2,df3],axis=1,copy=False)
+    return dictDF
 
 def downloadSubscriptionSDR(year=None,doy=None,url=None): 
     if year==None:
@@ -689,7 +689,6 @@ def main():
     orderIDs = args.orderIDs
 #    parentDir = args.parentDir
     tiles = args.tiles
-    print orderIDs
     if start_doy == None:
         tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         start = timer.time()
