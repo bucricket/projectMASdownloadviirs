@@ -669,7 +669,7 @@ def createDB(year=None,doy=None):
 #                    df = df.append(df1, ignore_index=True)
 #                except: 
 #                  pass
-    database = os.path.join(data_path,'I5_database.csv')
+    database = os.path.join(dirpath,'I5_database.csv')
     df.to_csv(database, index=False)
     print "all done!!"
     
