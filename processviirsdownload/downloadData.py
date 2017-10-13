@@ -645,7 +645,7 @@ def createDB(year=None,doy=None):
     df = pd.DataFrame()
 #    parDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     dirpath = os.path.join(data_path,"%d" % year, "%02d" % month)
-    fileList = glob.glob(dirpath, "*SVI05*.h5")
+    fileList = glob.glob(os.path.join(dirpath, "*SVI05*.h5"))
     for fn in fileList:
         filename = fn.split(os.sep)[-1]
         try:
