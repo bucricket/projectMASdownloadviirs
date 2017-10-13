@@ -630,24 +630,46 @@ def getCFSRdata(year=None,doy=None):
     #        moveFiles(os.getcwd(),dstpath,date,forcastHR,hr,"dat")
             moveFiles(os.getcwd(),dstpath,date,hr)
     print "finished processing!"
-def createDB():
+def createDB(year=None,doy=None):
+    if year==None:
+        dd = datetime.date.today()+datetime.timedelta(days=-1)
+        year = dd.year
+    if doy==None:
+        dd = datetime.date.today()+datetime.timedelta(days=-1)
+        month = dd.month
+    else:
+        dd=datetime.datetime(year,1,1)+datetime.timedelta(days=doy-1)
+        month = dd.month
+
+        
     df = pd.DataFrame()
-    parDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    for dirpath, dirnames, filenames in os.walk(parDir):
-        try:
-            for filename in [f for f in filenames if ((f.split("_")[0].split(".")[1] == "SVI05") and f.endswith(".h5"))]:
-                try:
-                    df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
-                    df = df.append(df1, ignore_index=True)
-                except: 
-                  pass
-        except:
-            for filename in [f for f in filenames if (f.startswith("SVI05") and f.endswith(".h5"))]:
-                try:
-                    df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
-                    df = df.append(df1, ignore_index=True)
-                except: 
-                  pass
+#    parDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+    dirpath = os.path.join(data_path,"%d" % year, "%02d" % month)
+    fileList = glob.glob(dirpath, "*.h5")
+    for fn in fileList:
+        if "SVI05" in fn:
+            filename = fn.split(os.sep)[-1]
+            try:
+                df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+                df = df.append(df1, ignore_index=True)
+            except: 
+              pass
+#            
+#    for dirpath, dirnames, filenames in os.walk(parDir):
+#        try:
+#            for filename in [f for f in filenames if ((f.split("_")[0].split(".")[1] == "SVI05") and f.endswith(".h5"))]:
+#                try:
+#                    df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+#                    df = df.append(df1, ignore_index=True)
+#                except: 
+#                  pass
+#        except:
+#            for filename in [f for f in filenames if (f.startswith("SVI05") and f.endswith(".h5"))]:
+#                try:
+#                    df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+#                    df = df.append(df1, ignore_index=True)
+#                except: 
+#                  pass
     database = os.path.join(data_path,'I5_database.csv')
     df.to_csv(database, index=False)
     print "all done!!"
