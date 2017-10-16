@@ -632,6 +632,7 @@ def getCFSRdata(year=None,doy=None):
             moveFiles(os.getcwd(),dstpath,date,hr)
     print "finished processing!"
 def createDB(year=None,doy=None):
+    
     if year==None:
         dd = datetime.date.today()+datetime.timedelta(days=-1)
         year = dd.year
@@ -646,14 +647,18 @@ def createDB(year=None,doy=None):
     df = pd.DataFrame()
 #    parDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     dirpath = os.path.join(data_path,"%d" % year, "%02d" % month)
+    database = os.path.join(dirpath,'I5_database.csv')
     fileList = glob.glob(os.path.join(dirpath, "*SVI05*.h5"))
+    db = pd.read_csv( database )
+    
     for fn in fileList:
         filename = fn.split(os.sep)[-1]
-        try:
-            df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
-            df = df.append(df1, ignore_index=True)
-        except: 
-          pass
+        if (np.sum(db.filename==filename)==0):            
+            try:
+                df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+                df = df.append(df1, ignore_index=True)
+            except: 
+              pass
 #            
 #    for dirpath, dirnames, filenames in os.walk(parDir):
 #        try:
@@ -670,7 +675,7 @@ def createDB(year=None,doy=None):
 #                    df = df.append(df1, ignore_index=True)
 #                except: 
 #                  pass
-    database = os.path.join(dirpath,'I5_database.csv')
+    
     df.to_csv(database, index=False)
     print "all done!!"
     
