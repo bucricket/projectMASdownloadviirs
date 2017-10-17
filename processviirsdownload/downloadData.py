@@ -28,6 +28,7 @@ from joblib import Parallel, delayed
 import time as timer
 import math
 import ephem
+import sqlite3
 
 
 ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
@@ -643,22 +644,22 @@ def createDB(year=None,doy=None):
         dd=datetime.datetime(year,1,1)+datetime.timedelta(days=doy-1)
         month = dd.month
 
-        
-    df = pd.DataFrame()
-#    parDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    dirpath = os.path.join(data_path,"%d" % year, "%02d" % month)
-    database = os.path.join(dirpath,'I5_database.csv')
-    fileList = glob.glob(os.path.join(dirpath, "*SVI05*.h5"))
-    db = pd.read_csv( database )
-    
-    for fn in fileList:
-        filename = fn.split(os.sep)[-1]
-        if (np.sum(db.filename==filename)==0):            
-            try:
-                df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
-                df = df.append(df1, ignore_index=True)
-            except: 
-              pass
+#        
+#    df = pd.DataFrame()
+##    parDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+#    dirpath = os.path.join(data_path,"%d" % year, "%02d" % month)
+#    database = os.path.join(dirpath,'I5_database.csv')
+#    fileList = glob.glob(os.path.join(dirpath, "*SVI05*.h5"))
+#    db = pd.read_csv( database )
+#    
+#    for fn in fileList:
+#        filename = fn.split(os.sep)[-1]
+#        if (np.sum(db.filename==filename)==0):            
+#            try:
+#                df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+#                df = df.append(df1, ignore_index=True)
+#            except: 
+#              pass
 #            
 #    for dirpath, dirnames, filenames in os.walk(parDir):
 #        try:
@@ -676,7 +677,31 @@ def createDB(year=None,doy=None):
 #                except: 
 #                  pass
     
-    df.to_csv(database, index=False)
+#    df.to_csv(database, index=False)
+    
+    #====use sqlite db=========
+    I5_db_name = os.path.join(data_path,'viirs_database.db')
+    dirpath = os.path.join(data_path,"%d" % year, "%02d" % month)
+    fileList = glob.glob(os.path.join(dirpath, "*SVI05*.h5"))
+    if not os.path.exists(I5_db_name):
+        i5_df = pd.DataFrame()
+        conn = sqlite3.connect( I5_db_name )
+    else:    
+        conn = sqlite3.connect( I5_db_name )
+        i5_df = pd.read_sql_query("SELECT * from i5",conn)
+    df = pd.DataFrame()
+    for fn in fileList:
+        filename = fn.split(os.sep)[-1]          
+        try:
+            df1 = get_VIIRS_bounds(os.path.join(dirpath, filename))
+            df = df.append(df1, ignore_index=True)
+        except: 
+          pass
+    i5_df = i5_df.append(df,ignore_index=True)
+    i5_df = i5_df.drop_duplicates(subset='east',keep='last')
+    i5_df.to_sql("i5", conn, if_exists="replace")
+    
+    conn.close()
     print "all done!!"
     
 start = timer.time()
