@@ -699,7 +699,7 @@ def createDB(year=None,doy=None):
           pass
     i5_df = i5_df.append(df,ignore_index=True)
     i5_df = i5_df.drop_duplicates(subset='east',keep='last')
-    i5_df.to_sql("i5", conn, if_exists="replace")
+    i5_df.to_sql("i5", conn, if_exists="replace", index=False)
     
     conn.close()
     print "all done!!"
