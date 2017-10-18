@@ -163,7 +163,7 @@ def get_VIIRS_bounds(fn):
     dictDF = pd.concat([df1,df2,df3],axis=1,copy=False)
     return dictDF
 
-def downloadSubscriptionSDR(year=None,doy=None,url=None): 
+def downloadSubscriptionSDR(year=None,doy=None,inurl=None): 
     if year==None:
         dd = datetime.date.today()+datetime.timedelta(days=-1)
         year = dd.year
@@ -178,7 +178,7 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
     filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
     #download I5 data
     ext = 'h5'
-    if url==None: # Use subscription
+    if inurl==None: # Use subscription
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85113/'
 
         for fn in listFD(url, ext):
@@ -195,7 +195,7 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
                     #wget.download(url+fileName,out=outName)
                     urllib.urlretrieve(url+fileName, outName)
     else:
-        for fn in listFD(url, ext):
+        for fn in listFD(inurl, ext):
             fileName = str(fn.split('/')[-1])  
 
             if not os.path.exists(filePath):
@@ -204,13 +204,13 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
             outName=os.path.join(filePath,fileName)
             
             if not os.path.isfile(outName):
-                print url+fileName
+                print inurl+fileName
                 print "downloading:  %s" % fileName
                 #wget.download(url+fileName,out=outName)
-                urllib.urlretrieve(url+fileName, outName)
+                urllib.urlretrieve(inurl+fileName, outName)
 
     # download cloud data
-    if url==None:
+    if inurl==None:
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85123/'
         
         for fn in listFD(url, ext):
@@ -226,6 +226,20 @@ def downloadSubscriptionSDR(year=None,doy=None,url=None):
                     print "downloading:  %s" % fileName
                     #wget.download(url+fileName,out=outName)
                     urllib.urlretrieve(url+fileName, outName)
+    else:
+        for fn in listFD(inurl, ext):
+            fileName = str(fn.split('/')[-1])  
+
+            if not os.path.exists(filePath):
+                os.makedirs(filePath)
+        
+            outName=os.path.join(filePath,fileName)
+            
+            if not os.path.isfile(outName):
+                print inurl+fileName
+                print "downloading:  %s" % fileName
+                #wget.download(url+fileName,out=outName)
+                urllib.urlretrieve(inurl+fileName, outName)
                     
                 
                 
