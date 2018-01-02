@@ -629,6 +629,7 @@ def getCFSRdata(year=None,doy=None):
         cfsr_out = os.path.join(dstpath,"CFSR_%d%03d_%02d00_00%d.grib2" % (year,doy,hr,forcastHR))
         if not os.path.exists(cfsr_out):
             print "processing file...%s" % hr1file
+            print "downloading...%s" % pydapURL
             getHTTPdata(pydapURL,outFN)
             
             #------extract data
