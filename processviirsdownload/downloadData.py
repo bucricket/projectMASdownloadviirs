@@ -777,19 +777,19 @@ def main():
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         for orderID in orderIDs:
             url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
-            if '/' in listOrderDir(url, orderID)[0]:
-                for order in listOrderDir(url, orderID):
-                    download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001/' % str(order)
-                    days = range(start_doy,end_doy)
-                    print download_url
-                    start = timer.time()
-                    for doy in days:
-                        runProcess(tiles,year,doy,download_url)
-                createDB()
-                end = timer.time()
-                print("program duration: %f minutes" % ((end - start)/60.))
-            else:
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
+#            if '/' in listOrderDir(url, orderID)[0]:
+            for order in listOrderDir(url, orderID):
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % str(order)
+                days = range(start_doy,end_doy)
+                print download_url
+                start = timer.time()
+                for doy in days:
+                    runProcess(tiles,year,doy,download_url)
+            createDB()
+            end = timer.time()
+            print("program duration: %f minutes" % ((end - start)/60.))
+#            else:
+#                download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
                 
 #            if parentDir==None:
 ##                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
@@ -801,14 +801,14 @@ def main():
 ##                if not listFD(download_url, 'h5'):
 #                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/%d/001' % (parentDir,orderID)
 
-                days = range(start_doy,end_doy)
-                print download_url
-                start = timer.time()
-                for doy in days:
-                    runProcess(tiles,year,doy,download_url)
-                createDB()
-                end = timer.time()
-                print("program duration: %f minutes" % ((end - start)/60.))       
+#                days = range(start_doy,end_doy)
+#                print download_url
+#                start = timer.time()
+#                for doy in days:
+#                    runProcess(tiles,year,doy,download_url)
+#                createDB()
+#                end = timer.time()
+#                print("program duration: %f minutes" % ((end - start)/60.))       
    
 main()      
 
