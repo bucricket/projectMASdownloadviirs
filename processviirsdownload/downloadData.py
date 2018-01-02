@@ -789,7 +789,7 @@ def main():
                 end = timer.time()
                 print("program duration: %f minutes" % ((end - start)/60.))
             else:
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%s/001/' % orderID
+                download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
                 
 #            if parentDir==None:
 ##                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
@@ -810,6 +810,6 @@ def main():
                 end = timer.time()
                 print("program duration: %f minutes" % ((end - start)/60.))       
    
-      
+main()      
 
 
