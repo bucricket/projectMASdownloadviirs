@@ -216,7 +216,9 @@ def downloadSubscriptionSDR(year=None,doy=None,inurl=None):
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
             if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-    #            filePath = os.path.join(outPath,'%s' % fileName.split('_')[0])
+#                year = fileName.split("_")[-7][1:5]
+#                month = fileName.split("_")[-7][5:7]
+#                filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
                 if not os.path.exists(filePath):
                     os.makedirs(filePath)
             
@@ -229,17 +231,17 @@ def downloadSubscriptionSDR(year=None,doy=None,inurl=None):
     else:
         for fn in listFD(inurl, ext):
             fileName = str(fn.split('/')[-1])  
-
-            if not os.path.exists(filePath):
-                os.makedirs(filePath)
-        
-            outName=os.path.join(filePath,fileName)
+            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
+                if not os.path.exists(filePath):
+                    os.makedirs(filePath)
             
-            if not os.path.isfile(outName):
-                print inurl+fileName
-                print "downloading:  %s" % fileName
-                #wget.download(url+fileName,out=outName)
-                urllib.urlretrieve(inurl+fileName, outName)
+                outName=os.path.join(filePath,fileName)
+                
+                if not os.path.isfile(outName):
+                    print inurl+fileName
+                    print "downloading:  %s" % fileName
+                    #wget.download(url+fileName,out=outName)
+                    urllib.urlretrieve(inurl+fileName, outName)
                     
                 
                 
