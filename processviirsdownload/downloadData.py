@@ -781,7 +781,7 @@ def main():
 #            if '/' in listOrderDir(url, orderID)[0]:
             for order in listOrderDir(url, orderID):
                 download_url = 'https://download.class.ngdc.noaa.gov/download/%s/' % str(order)
-                if not download_url.split("/")[-1] == '001':
+                if not download_url.split("/")[-2] == '001':
                     download_url = download_url+"001/"
                 days = range(start_doy,end_doy)
                 print download_url
