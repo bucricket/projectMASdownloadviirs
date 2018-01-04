@@ -770,30 +770,41 @@ def read_email_from_gmail(emailadd,password):
 #        type, data = mail.search(None, 'ALL')
         type, data = mail.search(None, '(UNSEEN)')
         mail_ids = data[0]
-
-        id_list = mail_ids.split()   
-        first_email_id = int(id_list[0])
-        latest_email_id = int(id_list[-1])
-
-
-        for i in range(latest_email_id,first_email_id, -1):
-            typ, data = mail.fetch(i, '(RFC822)' )
+        if mail_ids == '':
             classOrderIDs = []
-            for response_part in data:
-                if isinstance(response_part, tuple):
-                    msg = email.message_from_string(response_part[1])
-                    email_subject = msg['subject']
-                    email_from = msg['from']
-                    if email_subject.split()[-1] == "Complete":                        
-                        classOrderIDs.append(email_subject.split()[-3])
-                        print 'From : ' + email_from + '\n'
-                        print 'Subject : ' + email_subject + '\n'
-                    else:
-                        print("nothing to see here")
+            url = ''
+        else:
+
+#        id_list = mail_ids.split()   
+#        first_email_id = int(id_list[0])
+#        latest_email_id = int(id_list[-1])
+
+
+            for mail_id in mail_ids:
+                typ, data = mail.fetch(mail_id, '(RFC822)' )
+                classOrderIDs = []
+                url = ''
+                for response_part in data:
+                    if isinstance(response_part, tuple):
+                        msg = email.message_from_string(response_part[1])
+                        email_subject = msg['subject']
+                        email_from = msg['from']
+                        if email_subject.split()[-1] == "Complete":                        
+                            classOrderIDs.append(email_subject.split()[-3])
+                            print 'From : ' + email_from + '\n'
+                            print 'Subject : ' + email_subject + '\n'
+                            msg.get_payload()
+                            a = msg.get_payload()
+                            b = a.splitlines()
+                            bb = np.char.strip(b)
+                            loc = np.argwhere(np.array(b) == "Alternatively, you can also pick up your data  via")+2
+                            url = bb[loc[0][0]]
+                        else:
+                            print("nothing to see here")
 
     except Exception, e:
         print str(e)
-    return classOrderIDs
+    return classOrderIDs,url
 
 
 
@@ -812,7 +823,7 @@ def main():
     cron = args.cron
     if cron[0]==1:
         print("crontab")
-        orderIDs = read_email_from_gmail("ordersatdata@gmail.com","sushmaMITCH12")
+        orderIDs,url = read_email_from_gmail("ordersatdata@gmail.com","sushmaMITCH12")
 #    parentDir = args.parentDir
     tiles = args.tiles
 #    if start_doy == None:
@@ -834,15 +845,16 @@ def main():
         if tiles==None:
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         for orderID in orderIDs:
-            url = 'https://download.class.ngdc.noaa.gov/download/%s/' % orderID
-            for order in listOrderDir(url, orderID):
-                download_url = 'https://download.class.ngdc.noaa.gov/download/%s/' % str(order)
-                if not download_url.split("/")[-2] == '001':
-                    download_url = download_url+"001/"
-                print download_url
-                start = timer.time()
-                runProcess(tiles,download_url)
-                end = timer.time()
+#            url = 'https://download.class.ngdc.noaa.gov/download/%s/' % orderID
+#            for order in listOrderDir(url, orderID):
+                #download_url = 'https://download.class.ngdc.noaa.gov/download/%s/' % str(order)
+            download_url = url+"/"
+            if not download_url.split("/")[-2] == '001':
+                download_url = download_url+"001/"
+            print download_url
+            start = timer.time()
+            runProcess(tiles,download_url)
+            end = timer.time()
             createDB()
             
             print("program duration: %f minutes" % ((end - start)/60.))
