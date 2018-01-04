@@ -10,11 +10,9 @@ import os
 import subprocess
 import h5py
 import numpy as np
-import csv
 import pandas as pd
 import glob
 import datetime
-import gzip
 import shutil
 from osgeo import gdal,osr
 import argparse
@@ -26,7 +24,6 @@ from pydap.client import open_url
 from pydap.cas import urs
 from joblib import Parallel, delayed
 import time as timer
-import math
 import ephem
 import sqlite3
 
@@ -163,41 +160,83 @@ def get_VIIRS_bounds(fn):
     dictDF = pd.concat([df1,df2,df3],axis=1,copy=False)
     return dictDF
 
-def downloadSubscriptionSDR(year=None,doy=None,inurl=None): 
-    if year==None:
-        dd = datetime.date.today()+datetime.timedelta(days=-1)
-        year = dd.year
-    if doy==None:
-        dd = datetime.date.today()+datetime.timedelta(days=-1)
-        month = dd.month
-        day = dd.day
-    else:
-        dd=datetime.datetime(year,1,1)+datetime.timedelta(days=doy)
-        month = dd.month
-        day = dd.day
-    filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
+def downloadSubscriptionSDR(inurl=None): 
+#    if year==None:
+#        dd = datetime.date.today()+datetime.timedelta(days=-1)
+#        year = dd.year
+#    if doy==None:
+#        dd = datetime.date.today()+datetime.timedelta(days=-1)
+#        month = dd.month
+#        day = dd.day
+#    else:
+#        dd=datetime.datetime(year,1,1)+datetime.timedelta(days=doy)
+#        month = dd.month
+#        day = dd.day
+#    filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
     #download I5 data
     ext = 'h5'
     if inurl==None: # Use subscription
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85113/'
-
+        years = []
+        months = []
+        days = []
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
-            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-    #            filePath = os.path.join(outPath,'%s' % fileName.split('_')[0])
-                if not os.path.exists(filePath):
-                    os.makedirs(filePath)
+#            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
+            year = fileName.split("_")[-7][1:5]
+            month = fileName.split("_")[-7][5:7]
+            day = fileName.split("_")[-7][7:9]
+            years.append(year)
+            months.append(month)
+            days.append(day)
+            filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
+            if not os.path.exists(filePath):
+                os.makedirs(filePath)
+        
+            outName=os.path.join(filePath,fileName)
             
-                outName=os.path.join(filePath,fileName)
-                
-                if not os.path.isfile(outName):
-                    print "downloading:  %s" % fileName
-                    #wget.download(url+fileName,out=outName)
-                    urllib.urlretrieve(url+fileName, outName)
+            if not os.path.isfile(outName):
+                print "downloading:  %s" % fileName
+                urllib.urlretrieve(url+fileName, outName)
+
+    # download cloud data
+    if inurl==None:
+        url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85123/'
+        years = []
+        months = []
+        days = []
+        for fn in listFD(url, ext):
+            fileName = str(fn.split('/')[-1])  
+#            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
+            year = fileName.split("_")[-7][1:5]
+            month = fileName.split("_")[-7][5:7]
+            day = fileName.split("_")[-7][7:9]
+            years.append(year)
+            months.append(month)
+            days.append(day)
+            filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
+            if not os.path.exists(filePath):
+                os.makedirs(filePath)
+        
+            outName=os.path.join(filePath,fileName)
+            
+            if not os.path.isfile(outName):
+                print "downloading:  %s" % fileName
+                urllib.urlretrieve(url+fileName, outName)
     else:
+        years = []
+        months = []
+        days = [] 
         for fn in listFD(inurl, ext):
             fileName = str(fn.split('/')[-1])  
-
+#            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
+            year = fileName.split("_")[-7][1:5]
+            month = fileName.split("_")[-7][5:7]
+            day = fileName.split("_")[-7][7:9]
+            years.append(year)
+            months.append(month)
+            days.append(day)
+            filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
             if not os.path.exists(filePath):
                 os.makedirs(filePath)
         
@@ -206,43 +245,11 @@ def downloadSubscriptionSDR(year=None,doy=None,inurl=None):
             if not os.path.isfile(outName):
                 print inurl+fileName
                 print "downloading:  %s" % fileName
-                #wget.download(url+fileName,out=outName)
                 urllib.urlretrieve(inurl+fileName, outName)
-
-    # download cloud data
-    if inurl==None:
-        url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85123/'
-        
-        for fn in listFD(url, ext):
-            fileName = str(fn.split('/')[-1])  
-            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-#                year = fileName.split("_")[-7][1:5]
-#                month = fileName.split("_")[-7][5:7]
-#                filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
-                if not os.path.exists(filePath):
-                    os.makedirs(filePath)
-            
-                outName=os.path.join(filePath,fileName)
                 
-                if not os.path.isfile(outName):
-                    print "downloading:  %s" % fileName
-                    #wget.download(url+fileName,out=outName)
-                    urllib.urlretrieve(url+fileName, outName)
-    else:
-        for fn in listFD(inurl, ext):
-            fileName = str(fn.split('/')[-1])  
-            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-                if not os.path.exists(filePath):
-                    os.makedirs(filePath)
-            
-                outName=os.path.join(filePath,fileName)
-                
-                if not os.path.isfile(outName):
-                    print inurl+fileName
-                    print "downloading:  %s" % fileName
-                    #wget.download(url+fileName,out=outName)
-                    urllib.urlretrieve(inurl+fileName, outName)
-                    
+    date_df = pd.DataFrame.from_dict({'years': years,'months': months,'days': days})
+    
+    return date_df                
                 
                 
 def getInsolation(earthLoginUser,earthLoginPass,tile,year=None,doy=None):
@@ -723,55 +730,62 @@ def createDB(year=None,doy=None):
     
 start = timer.time()
 
-def runProcess(tiles,year=None,doy=None,downloadurl=None):
-    if year==None: # if None assume its real-time processing 
-        downloadSubscriptionSDR()
-        getCFSRdata() 
-        for tile in tiles:
-            getCFSRInsolation(tile)
-    elif downloadurl==None:
-        downloadSubscriptionSDR(year,doy)
-        getCFSRdata(year,doy)
-        for tile in tiles:
-            getCFSRInsolation(tile,year,doy)
+def runProcess(tiles,downloadurl=None):
+#    if year==None: # if None assume its real-time processing 
+#        downloadSubscriptionSDR()
+#        getCFSRdata() 
+#        for tile in tiles:
+#            getCFSRInsolation(tile)
+    if downloadurl==None:
+        date_df = downloadSubscriptionSDR()
+        for i in range(len(date_df)):
+            year = date_df['years'][i]
+            month = date_df['months'][i]
+            day = date_df['days'][i]
+            ss = datetime.date(year,month,day)-datetime.date(year,1,1)
+            doy = ss.days+1
+            getCFSRdata(year,doy)
+            for tile in tiles:
+                getCFSRInsolation(tile,year,doy)
     else:
-        downloadSubscriptionSDR(year,doy,downloadurl)
-        getCFSRdata(year,doy)
-        for tile in tiles:
-            getCFSRInsolation(tile,year,doy)
+        date_df = downloadSubscriptionSDR(downloadurl)
+        for i in range(len(date_df)):
+            year = date_df['years'][i]
+            month = date_df['months'][i]
+            day = date_df['days'][i]
+            ss = datetime.date(year,month,day)-datetime.date(year,1,1)
+            doy = ss.days+1
+            getCFSRdata(year,doy)
+            for tile in tiles:
+                getCFSRInsolation(tile,year,doy)
  
 
 
 def main():
     # Get time and location from user
     parser = argparse.ArgumentParser()
-    parser.add_argument("year", nargs='?', type=int, default=None, help="year of data")
-    parser.add_argument("start_doy", nargs='?',type=int, default=None, help="start day of processing. *Note: leave blank for Real-time")
-    parser.add_argument("end_doy", nargs='?',type=int, default=None, help="end day of processing. *Note: leave blank for Real-time")
+#    parser.add_argument("year", nargs='?', type=int, default=None, help="year of data")
+#    parser.add_argument("start_doy", nargs='?',type=int, default=None, help="start day of processing. *Note: leave blank for Real-time")
+#    parser.add_argument("end_doy", nargs='?',type=int, default=None, help="end day of processing. *Note: leave blank for Real-time")
 #    parser.add_argument('-p','--parentDir', nargs='*',type=int, default=None, help="parent director for large orders from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-o','--orderIDs', nargs='*',type=str, default=None, help="list of order IDs from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-t','--tiles', nargs='*',type=int, default=None, help='list of tiles')
     args = parser.parse_args()
-    year= args.year
-    start_doy = args.start_doy
-    end_doy= args.end_doy
     orderIDs = args.orderIDs
 #    parentDir = args.parentDir
     tiles = args.tiles
-    if start_doy == None:
-        tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
-        start = timer.time()
-        runProcess(tiles)
-        createDB()
-        end = timer.time()
-        print("program duration: %f minutes" % ((end - start)/60.))
-    elif orderIDs ==None:   
+#    if start_doy == None:
+#        tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
+#        start = timer.time()
+#        runProcess(tiles)
+#        createDB()
+#        end = timer.time()
+#        print("program duration: %f minutes" % ((end - start)/60.))
+    if orderIDs ==None: # Use subscription
         if tiles==None:
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
-        days = range(start_doy,end_doy)
         start = timer.time()
-        for doy in days:
-            runProcess(tiles,year,doy)
+        runProcess(tiles)
         createDB()
         end = timer.time()
         print("program duration: %f minutes" % ((end - start)/60.)) 
@@ -780,18 +794,16 @@ def main():
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
         for orderID in orderIDs:
             url = 'https://download.class.ngdc.noaa.gov/download/%s/' % orderID
-#            if '/' in listOrderDir(url, orderID)[0]:
             for order in listOrderDir(url, orderID):
                 download_url = 'https://download.class.ngdc.noaa.gov/download/%s/' % str(order)
                 if not download_url.split("/")[-2] == '001':
                     download_url = download_url+"001/"
-                days = range(start_doy,end_doy)
                 print download_url
                 start = timer.time()
-                for doy in days:
-                    runProcess(tiles,year,doy,download_url)
+                runProcess(tiles,download_url)
+                end = timer.time()
             createDB()
-            end = timer.time()
+            
             print("program duration: %f minutes" % ((end - start)/60.))
 #            else:
 #                download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
