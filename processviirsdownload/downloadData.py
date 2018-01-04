@@ -185,9 +185,9 @@ def downloadSubscriptionSDR(inurl=None):
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
 #            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-            year = fileName.split("_")[-7][1:5]
-            month = fileName.split("_")[-7][5:7]
-            day = fileName.split("_")[-7][7:9]
+            year = int(fileName.split("_")[-7][1:5])
+            month = int(fileName.split("_")[-7][5:7])
+            day = int(fileName.split("_")[-7][7:9])
             years.append(year)
             months.append(month)
             days.append(day)
@@ -210,9 +210,9 @@ def downloadSubscriptionSDR(inurl=None):
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
 #            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-            year = fileName.split("_")[-7][1:5]
-            month = fileName.split("_")[-7][5:7]
-            day = fileName.split("_")[-7][7:9]
+            year = int(fileName.split("_")[-7][1:5])
+            month = int(fileName.split("_")[-7][5:7])
+            day = int(fileName.split("_")[-7][7:9])
             years.append(year)
             months.append(month)
             days.append(day)
@@ -232,9 +232,9 @@ def downloadSubscriptionSDR(inurl=None):
         for fn in listFD(inurl, ext):
             fileName = str(fn.split('/')[-1])  
 #            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-            year = fileName.split("_")[-7][1:5]
-            month = fileName.split("_")[-7][5:7]
-            day = fileName.split("_")[-7][7:9]
+            year = int(fileName.split("_")[-7][1:5])
+            month = int(fileName.split("_")[-7][5:7])
+            day = int(fileName.split("_")[-7][7:9])
             years.append(year)
             months.append(month)
             days.append(day)
