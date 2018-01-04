@@ -26,6 +26,8 @@ from joblib import Parallel, delayed
 import time as timer
 import ephem
 import sqlite3
+import imaplib
+import email
 
 
 ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
@@ -759,6 +761,40 @@ def runProcess(tiles,downloadurl=None):
             for tile in tiles:
                 getCFSRInsolation(tile,year,doy)
  
+def read_email_from_gmail(emailadd,password):
+    try:
+        mail = imaplib.IMAP4_SSL("imap.gmail.com")
+        mail.login(emailadd,password)
+        mail.select('inbox')
+
+#        type, data = mail.search(None, 'ALL')
+        type, data = mail.search(None, '(UNSEEN)')
+        mail_ids = data[0]
+
+        id_list = mail_ids.split()   
+        first_email_id = int(id_list[0])
+        latest_email_id = int(id_list[-1])
+
+
+        for i in range(latest_email_id,first_email_id, -1):
+            typ, data = mail.fetch(i, '(RFC822)' )
+            classOrderIDs = []
+            for response_part in data:
+                if isinstance(response_part, tuple):
+                    msg = email.message_from_string(response_part[1])
+                    email_subject = msg['subject']
+                    email_from = msg['from']
+                    if email_subject.split()[-1] == "Complete":                        
+                        classOrderIDs.append(email_subject.split()[-3])
+                        print 'From : ' + email_from + '\n'
+                        print 'Subject : ' + email_subject + '\n'
+                    else:
+                        print("nothing to see here")
+
+    except Exception, e:
+        print str(e)
+    return classOrderIDs
+
 
 
 def main():
@@ -770,8 +806,12 @@ def main():
 #    parser.add_argument('-p','--parentDir', nargs='*',type=int, default=None, help="parent director for large orders from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-o','--orderIDs', nargs='*',type=str, default=None, help="list of order IDs from CLASS e-mail. *Note: leave blank for Real-time")
     parser.add_argument('-t','--tiles', nargs='*',type=int, default=None, help='list of tiles')
+    parser.add_argument('-c','--cron', nargs='*',type=int, default=0, help='1 for using crontab')
     args = parser.parse_args()
     orderIDs = args.orderIDs
+    cron = args.cron
+    if cron==1:
+        orderIDs = read_email_from_gmail("ordersatdata@gmail.com","sushmaMITCH12")
 #    parentDir = args.parentDir
     tiles = args.tiles
 #    if start_doy == None:
