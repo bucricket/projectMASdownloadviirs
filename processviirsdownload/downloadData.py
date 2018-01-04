@@ -810,7 +810,7 @@ def main():
     args = parser.parse_args()
     orderIDs = args.orderIDs
     cron = args.cron
-    if cron==1:
+    if cron[0]==1:
         print("crontab")
         orderIDs = read_email_from_gmail("ordersatdata@gmail.com","sushmaMITCH12")
 #    parentDir = args.parentDir
