@@ -875,7 +875,8 @@ def main():
             runProcess(tiles,download_url)
             end = timer.time()
             createDB()
-            sendEmail(orderID)
+            if not orderID == '':
+                sendEmail(orderID)
             
             
             print("program duration: %f minutes" % ((end - start)/60.))
