@@ -28,6 +28,7 @@ import ephem
 import sqlite3
 import imaplib
 import email
+import smtplib
 
 
 ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
