@@ -478,11 +478,13 @@ def getCFSRInsolation(tile,year=None,doy=None):
     #            gdalwarp -t_srs '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs' test.vrt test3.tif -wo SOURCE_EXTRA=1000 --config CENTER_LONG 0 -te -15.0 30.0 0.0 45.0 -tr 0.004 0.004
             g = gdal.Open(cfsr_out, gdal.GA_ReadOnly)
             data = g.ReadAsArray()
+            
             outData.append(np.reshape(data,[nrow*ncol]))
-           
+        shutil.rmtree(tile_path)  
         aa = np.array(outData)
         rs24 = np.sum(aa,axis=0)
         rs24 = np.reshape(rs24,[nrow, ncol])
+        rs24 = np.array(rs24,dtype='Float32')
         outFormat = gdal.GDT_Float32
         inUL = [ulx,uly]
         inRes = [0.004,0.004]
