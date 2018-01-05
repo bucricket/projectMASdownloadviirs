@@ -813,7 +813,7 @@ def read_email_from_gmail(emailadd,password):
 
     except Exception, e:
         print str(e)
-    return classOrderIDs,url
+    return classOrderIDs,urls
 
 def sendEmail(orderID):
     fromaddr = "ordersatdata@gmail.com"
@@ -886,7 +886,7 @@ def main():
 
             
             
-            print("program duration: %f minutes" % ((end - start)/60.))
+        print("program duration: %f minutes" % ((end - start)/60.))
       
    
 main()      
