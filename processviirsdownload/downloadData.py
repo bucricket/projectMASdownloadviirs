@@ -770,6 +770,7 @@ def read_email_from_gmail(emailadd,password):
 #        type, data = mail.search(None, 'ALL')
         type, data = mail.search(None, '(UNSEEN)')
         mail_ids = data[0]
+        mail_ids = map(int, mail_ids.split(" "))
         if mail_ids == '':
             classOrderIDs = []
             url = ''
