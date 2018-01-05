@@ -811,8 +811,6 @@ def read_email_from_gmail(emailadd,password):
 def sendEmail(orderID):
     fromaddr = "ordersatdata@gmail.com"
     toaddrs = "bucricket@gmail.com"
-    #fromaddr = 'user_me@gmail.com'
-    #toaddrs  = 'user_you@gmail.com'
     msg = "\r\n".join([
       "From: %s" % fromaddr,
       "To: %s" % toaddrs,
@@ -881,27 +879,7 @@ def main():
             
             
             print("program duration: %f minutes" % ((end - start)/60.))
-#            else:
-#                download_url = 'https://download.class.ngdc.noaa.gov/download/%s' % orderID
-                
-#            if parentDir==None:
-##                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/001/' % orderID
-##                if not listFD(download_url, 'h5'):
-#                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/001' % orderID
-#            else:
-#                parentDir = args.parentDir[0]
-##                download_url = 'https://download.class.ncdc.noaa.gov/download/%d/%d/001/' % (parentDir,orderID)
-##                if not listFD(download_url, 'h5'):
-#                download_url = 'https://download.class.ngdc.noaa.gov/download/%d/%d/001' % (parentDir,orderID)
-
-#                days = range(start_doy,end_doy)
-#                print download_url
-#                start = timer.time()
-#                for doy in days:
-#                    runProcess(tiles,year,doy,download_url)
-#                createDB()
-#                end = timer.time()
-#                print("program duration: %f minutes" % ((end - start)/60.))       
+      
    
 main()      
 
