@@ -815,7 +815,7 @@ def sendEmail(orderID):
     msg = "\r\n".join([
       "From: %s" % fromaddr,
       "To: %s" % toaddrs,
-      "Subject: Finished processing order %d" % orderID,
+      "Subject: Finished processing order %s" % orderID,
       "",
       ""
       ])
