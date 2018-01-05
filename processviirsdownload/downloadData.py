@@ -806,7 +806,25 @@ def read_email_from_gmail(emailadd,password):
         print str(e)
     return classOrderIDs,url
 
-
+def sendEmail(orderID):
+    fromaddr = "ordersatdata@gmail.com"
+    toaddrs = "bucricket@gmail.com"
+    #fromaddr = 'user_me@gmail.com'
+    #toaddrs  = 'user_you@gmail.com'
+    msg = "\r\n".join([
+      "From: %s" % fromaddr,
+      "To: %s" % toaddrs,
+      "Subject: Finished processing order %d" % orderID,
+      "",
+      ""
+      ])
+    username = 'ordersatdata@gmail.com'
+    password = 'sushmaMITCH12'
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.starttls()
+    server.login(username,password)
+    server.sendmail(fromaddr, toaddrs, msg)
+    server.quit()
 
 def main():
     # Get time and location from user
@@ -856,6 +874,8 @@ def main():
             runProcess(tiles,download_url)
             end = timer.time()
             createDB()
+            sendEmail(orderID)
+            
             
             print("program duration: %f minutes" % ((end - start)/60.))
 #            else:
