@@ -249,6 +249,7 @@ def downloadSubscriptionSDR(inurl=None):
                 print inurl+fileName
                 print "downloading:  %s" % fileName
                 urllib.urlretrieve(inurl+fileName, outName)
+        sendEmail(inurl)
                 
     date_df = pd.DataFrame.from_dict({'years': years,'months': months,'days': days})
     
@@ -741,6 +742,7 @@ def runProcess(tiles,downloadurl=None):
 #        getCFSRdata() 
 #        for tile in tiles:
 #            getCFSRInsolation(tile)
+
     if downloadurl==None:
         date_df = downloadSubscriptionSDR()
         for i in range(len(date_df)):
@@ -753,6 +755,9 @@ def runProcess(tiles,downloadurl=None):
             for tile in tiles:
                 getCFSRInsolation(tile,year,doy)
     else:
+        downloadurl = downloadurl+"/"
+        if not downloadurl.split("/")[-2] == '001':
+            downloadurl = downloadurl+"001/"
         date_df = downloadSubscriptionSDR(downloadurl)
         for i in range(len(date_df)):
             year = date_df['years'][i]
@@ -776,7 +781,7 @@ def read_email_from_gmail(emailadd,password):
         
         if mail_ids == '':
             classOrderIDs = []
-            url = ''
+            urls = []
         else:
             mail_ids = map(int, mail_ids.split(" "))
 #        id_list = mail_ids.split()   
@@ -787,7 +792,7 @@ def read_email_from_gmail(emailadd,password):
             for mail_id in mail_ids:
                 typ, data = mail.fetch(mail_id, '(RFC822)' )
                 classOrderIDs = []
-                url = ''
+                urls = []
                 for response_part in data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_string(response_part[1])
@@ -802,7 +807,7 @@ def read_email_from_gmail(emailadd,password):
                             b = a.splitlines()
                             bb = np.char.strip(b)
                             loc = np.argwhere(np.array(b) == "Alternatively, you can also pick up your data  via")+2
-                            url = bb[loc[0][0]]
+                            urls.append(bb[loc[0][0]])
                         else:
                             print("nothing to see here")
 
@@ -843,7 +848,7 @@ def main():
     cron = args.cron
     if cron[0]==1:
         print("crontab")
-        orderIDs,url = read_email_from_gmail("ordersatdata@gmail.com","sushmaMITCH12")
+        orderIDs,urls = read_email_from_gmail("ordersatdata@gmail.com","sushmaMITCH12")
 #    parentDir = args.parentDir
     tiles = args.tiles
 #    if start_doy == None:
@@ -862,22 +867,23 @@ def main():
         end = timer.time()
         print("program duration: %f minutes" % ((end - start)/60.)) 
     else:
+        start = timer.time()
         if tiles==None:
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
-        for orderID in orderIDs:
+        r = Parallel(n_jobs=-1, verbose=5)(delayed(runProcess)(tiles,url) for url in urls)
+#        for url in urls:
 #            url = 'https://download.class.ngdc.noaa.gov/download/%s/' % orderID
 #            for order in listOrderDir(url, orderID):
                 #download_url = 'https://download.class.ngdc.noaa.gov/download/%s/' % str(order)
-            download_url = url+"/"
-            if not download_url.split("/")[-2] == '001':
-                download_url = download_url+"001/"
-            print download_url
-            start = timer.time()
-            runProcess(tiles,download_url)
-            end = timer.time()
-            createDB()
-            if not orderID == '':
-                sendEmail(orderID)
+#            download_url = url+"/"
+#            if not download_url.split("/")[-2] == '001':
+#                download_url = download_url+"001/"
+#            print download_url
+#            start = timer.time()
+#            runProcess(tiles,download_url)
+        end = timer.time()
+        createDB()
+
             
             
             print("program duration: %f minutes" % ((end - start)/60.))
