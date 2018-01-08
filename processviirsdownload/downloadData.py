@@ -345,7 +345,7 @@ def downloadCFSRpython(hr1file,year=None,doy=None):
 ##        forcastHRs = [0,3,0,3,0,3,0,3]
 #        forecastHR = forecastHRs[i]
 #        hr1file = 'cdas1.t%02dz.sfluxgrbf%02d.grib2' % (hr,forecastHR)
-    print url
+#    print url
     pydapURL = os.path.join(url,hr1file)
     outFN = os.path.join(dstpath,hr1file)
     if not os.path.exists(outFN):
@@ -412,8 +412,8 @@ def getCFSRInsolation(tile,year=None,doy=None):
         grab_time = getGrabTime((t_end+1)*100)
         lastHR = getGrabTimeInv(grab_time/100,doy_end)
         doy_end = lastHR[2]
-        print doy, doy_end
-        print firstHR, lastHR
+#        print doy, doy_end
+#        print firstHR, lastHR
         
         if doy_end>doy:
             HRs=[]
@@ -432,7 +432,6 @@ def getCFSRInsolation(tile,year=None,doy=None):
         hrs = (HRs/6)*6
         forecastHRs = HRs-hrs
         outData = []
-        print HRs
         for i in range(len(HRs)):
     #        hrs = [0,0,6,6,12,12,18,18]
             hr = hrs[i]
