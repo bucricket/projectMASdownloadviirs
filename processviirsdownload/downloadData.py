@@ -870,8 +870,8 @@ def main():
         start = timer.time()
         if tiles==None:
             tiles = [60,61,62,63,64,83,84,85,86,87,88,107,108,109,110,111,112]
-        r = Parallel(n_jobs=-1, verbose=5)(delayed(runProcess)(tiles,url) for url in urls)
-#        for url in urls:
+#        r = Parallel(n_jobs=-1, verbose=5)(delayed(runProcess)(tiles,url) for url in urls)
+        for url in urls:
 #            url = 'https://download.class.ngdc.noaa.gov/download/%s/' % orderID
 #            for order in listOrderDir(url, orderID):
                 #download_url = 'https://download.class.ngdc.noaa.gov/download/%s/' % str(order)
@@ -880,7 +880,7 @@ def main():
 #                download_url = download_url+"001/"
 #            print download_url
 #            start = timer.time()
-#            runProcess(tiles,download_url)
+            runProcess(tiles,url)
         end = timer.time()
         createDB()
 
