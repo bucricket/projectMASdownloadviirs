@@ -176,7 +176,7 @@ def downloadSubscriptionSDR(inurl=None):
 #        month = dd.month
 #        day = dd.day
 #    filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
-    #download I5 data
+    #download VIIRS I5 data
     ext = 'h5'
     if inurl==None: # Use subscription
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85113/'
@@ -202,7 +202,7 @@ def downloadSubscriptionSDR(inurl=None):
                 print "downloading:  %s" % fileName
                 urllib.urlretrieve(url+fileName, outName)
 
-    # download cloud data
+    # download VIIRS cloud data
     if inurl==None:
         url = 'https://download.class.ngdc.noaa.gov/download/sub/hain/85123/'
         years = []
@@ -226,20 +226,37 @@ def downloadSubscriptionSDR(inurl=None):
             if not os.path.isfile(outName):
                 print "downloading:  %s" % fileName
                 urllib.urlretrieve(url+fileName, outName)
-    else:
+    else: # for Non-subscription 
+        
+        # put in staging area first and then put data in proper location
         years = []
         months = []
         days = [] 
-        for fn in listFD(inurl, ext):
-            fileName = str(fn.split('/')[-1])  
+        
+        fns = listFD(inurl, ext)
+        if len(fns)<1:
+            ext = 'gz'
+            fns = listFD(inurl, ext)
+            
+        for fn in fns:
+            fileName = str(fn.split('/')[-1]) 
+            if fileName.split("_")[0] == 'gsipL3': # For GSIP data more can be added later
+                year = int((fileName.split("_")[3]).split(".")[0][:4])
+                doy = int((fileName.split("_")[3]).split(".")[0][4:])
+                dd = datetime.datetime(year,1,1)+datetime.timedelta(days=doy-1)
+                month = dd.month
+                day = dd.day
+                filePath = os.path.join(static_path,"GSIP","%d" % year)
+            else:
 #            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-            year = int(fileName.split("_")[-7][1:5])
-            month = int(fileName.split("_")[-7][5:7])
-            day = int(fileName.split("_")[-7][7:9])
+                year = int(fileName.split("_")[-7][1:5])
+                month = int(fileName.split("_")[-7][5:7])
+                day = int(fileName.split("_")[-7][7:9])
+                filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
             years.append(year)
             months.append(month)
             days.append(day)
-            filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
+            
             if not os.path.exists(filePath):
                 os.makedirs(filePath)
         
@@ -464,6 +481,7 @@ def getCFSRInsolation(tile,year=None,doy=None):
             for bandNum  in range(90,100): # use this range because file is towrds the end
                 band = dataset.GetRasterBand(bandNum)
                 if (band.GetMetadata_List()[0]=='GRIB_COMMENT=Downward Short-Wave Rad. Flux [W/(m^2)]'):
+#            bandNum = 97
                     subprocess.check_output(["gdal_translate", "-of", "vrt", "-b",
                                              "%d" % bandNum,"-r", "bilinear",
                                              "%s" % gribFN, "%s" % cfsr_outvrt])
@@ -661,6 +679,31 @@ def getCFSRdata(year=None,doy=None):
     #        moveFiles(os.getcwd(),dstpath,date,forcastHR,hr,"dat")
             moveFiles(os.getcwd(),dstpath,date,hr)
     print "finished processing!"
+    
+def convertGSIP2tiff(year,doy):
+    inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+    date = '%d%03d' % (year,doy)
+    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
+    tif_fn = gsip_fn[:-2]+'tif' 
+    nc_fn = 'NETCDF:"%s":insolation' % gsip_fn
+    if not os.path.exists(tif_fn):
+        ds = gdal.Open(nc_fn)
+        aa = ds.GetRasterBand(1).ReadAsArray()*0.042727217           
+        writeArray2Tiff(aa,[0.05,0.05],[-180.,90.],inProjection,tif_fn,gdal.GDT_Float32)
+        
+def processGSIPtiles(tile,year,doy):
+    LLlat,LLlon = tile2latlon(tile)
+    URlat = LLlat+15.
+    LRlon = LLlon+15.
+    date = '%d%03d' % (year,doy)
+    insol24_fn = os.path.join(static_path,'INSOL24', 'RS24_%s_T%03d.tif' % (date,tile))
+    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
+    tif_fn = gsip_fn[:-2]+'tif' 
+    outds = gdal.Open(tif_fn)
+    outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
+                                                                        projWin=[LLlon,URlat,LRlon,LLlat]))
+    outds = None
+    
 def createDB(year=None,doy=None):
     
     if year==None:
@@ -765,8 +808,12 @@ def runProcess(tiles,downloadurl=None):
             ss = datetime.date(year,month,day)-datetime.date(year,1,1)
             doy = ss.days+1
             getCFSRdata(year,doy)
-            for tile in tiles:
-                getCFSRInsolation(tile,year,doy)
+            
+            convertGSIP2tiff(year,doy) 
+            print("======GSIP: Subsetting tiles==========================")
+            r = Parallel(n_jobs=-1, verbose=5)(delayed(processGSIPtiles)(tile,year,doy) for tile in tiles)
+#            for tile in tiles:
+#                getCFSRInsolation(tile,year,doy)
  
 def read_email_from_gmail(emailadd,password):
     try:
