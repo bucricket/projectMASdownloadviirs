@@ -828,7 +828,7 @@ def runProcess(tiles,downloadurl=None):
             print(year)
             print(doy)
             print("======GSIP: Subsetting tiles==========================")
-            r = Parallel(n_jobs=-1, verbose=5)(delayed(processGSIPtiles)(tile,year,doy) for tile in tiles)
+            r = Parallel(n_jobs=5, verbose=5)(delayed(processGSIPtiles)(tile,year,doy) for tile in tiles)
 #            for tile in tiles:
 #                getCFSRInsolation(tile,year,doy)
  
