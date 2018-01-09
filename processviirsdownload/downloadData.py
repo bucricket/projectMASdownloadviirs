@@ -825,6 +825,8 @@ def runProcess(tiles,downloadurl=None):
             getCFSRdata(year,doy)
             
             convertGSIP2tiff(year,doy) 
+            print(year)
+            print(doy)
             print("======GSIP: Subsetting tiles==========================")
             r = Parallel(n_jobs=-1, verbose=5)(delayed(processGSIPtiles)(tile,year,doy) for tile in tiles)
 #            for tile in tiles:
