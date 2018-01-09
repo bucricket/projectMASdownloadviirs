@@ -29,6 +29,7 @@ import sqlite3
 import imaplib
 import email
 import smtplib
+import gzip
 
 
 ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
@@ -62,6 +63,18 @@ def warp(args):
     options.extend(args)
     # call gdalwarp 
     subprocess.check_call(options)
+    
+def gunzip(fn, *positional_parameters, **keyword_parameters):
+    inF = gzip.GzipFile(fn, 'rb')
+    s = inF.read()
+    inF.close()
+    if ('out_fn' in keyword_parameters):
+        outF = file(keyword_parameters['out_fn'], 'wb')
+    else:
+        outF = file(fn[:-3], 'wb')
+          
+    outF.write(s)
+    outF.close()
 
 def writeArray2Tiff(data,res,UL,inProjection,outfile,outFormat):
 
@@ -266,6 +279,8 @@ def downloadSubscriptionSDR(inurl=None):
                 print inurl+fileName
                 print "downloading:  %s" % fileName
                 urllib.urlretrieve(inurl+fileName, outName)
+                if ext == 'gz':
+                    gunzip(outName)
         sendEmail(inurl)
                 
     date_df = pd.DataFrame.from_dict({'years': years,'months': months,'days': days})
