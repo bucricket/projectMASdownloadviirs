@@ -282,7 +282,7 @@ def downloadSubscriptionSDR(inurl=None):
                 if ext == 'gz':
                     gunzip(outName)
         sendEmail(inurl)
-                
+    print(days)           
     date_df = pd.DataFrame.from_dict({'years': years,'months': months,'days': days})
     
     return date_df                
