@@ -712,12 +712,13 @@ def processGSIPtiles(tile,year,doy):
     LRlon = LLlon+15.
     date = '%d%03d' % (year,doy)
     insol24_fn = os.path.join(static_path,'INSOL24', 'RS24_%s_T%03d.tif' % (date,tile))
-    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
-    tif_fn = gsip_fn[:-2]+'tif' 
-    outds = gdal.Open(tif_fn)
-    outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
-                                                                        projWin=[LLlon,URlat,LRlon,LLlat]))
-    outds = None
+    if not os.path.exists(insol24_fn):
+        gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
+        tif_fn = gsip_fn[:-2]+'tif' 
+        outds = gdal.Open(tif_fn)
+        outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
+                                                                            projWin=[LLlon,URlat,LRlon,LLlat]))
+        outds = None
     
 def createDB(year=None,doy=None):
     
@@ -794,12 +795,6 @@ def createDB(year=None,doy=None):
 start = timer.time()
 
 def runProcess(tiles,downloadurl=None):
-#    if year==None: # if None assume its real-time processing 
-#        downloadSubscriptionSDR()
-#        getCFSRdata() 
-#        for tile in tiles:
-#            getCFSRInsolation(tile)
-
     if downloadurl==None:
         date_df = downloadSubscriptionSDR()
         for i in range(len(date_df)):
