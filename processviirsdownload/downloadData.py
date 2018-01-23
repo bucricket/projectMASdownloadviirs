@@ -815,19 +815,22 @@ start = timer.time()
 
 def runProcess(tiles,downloadurl=None):
     if downloadurl==None: # RealTime
-        date_df = downloadSubscriptionSDR()
-        for i in range(len(date_df)):
-            year = date_df['years'][i]
-            month = date_df['months'][i]
-            day = date_df['days'][i]
-            ss = datetime.date(year,month,day)-datetime.date(year,1,1)
-            doy = ss.days+1
-            getCFSRdata(None,None)
+        dd = datetime.date.today()+datetime.timedelta(days=-1)
+        year = dd.year
+#        
+#        date_df = downloadSubscriptionSDR()
+#        for i in range(len(date_df)):
+#            year = date_df['years'][i]
+#            month = date_df['months'][i]
+#            day = date_df['days'][i]
+        ss = dd-datetime.date(year,1,1)
+        doy = ss.days+1
+        getCFSRdata(None,None)
 #            for tile in tiles:
 #                getCFSRInsolation(tile,year,doy)
-            convertGSIP2tiff(year,doy) 
-            print("======GSIP: Subsetting tiles==========================")
-            r = Parallel(n_jobs=-1, verbose=5)(delayed(processGSIPtiles)(tile,year,doy) for tile in tiles)
+        convertGSIP2tiff(year,doy) 
+        print("======GSIP: Subsetting tiles==========================")
+        r = Parallel(n_jobs=-1, verbose=5)(delayed(processGSIPtiles)(tile,year,doy) for tile in tiles)
     else:
         downloadurl = downloadurl+"/"
         if not downloadurl.split("/")[-2] == '001':
