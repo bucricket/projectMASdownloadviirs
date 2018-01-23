@@ -176,6 +176,34 @@ def get_VIIRS_bounds(fn):
     dictDF = pd.concat([df1,df2,df3],axis=1,copy=False)
     return dictDF
 
+def convertGSIP2tiff(year,doy):
+    inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+    date = '%d%03d' % (year,doy)
+    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
+    if os.path.exists(gsip_fn+".gz"):
+        gunzip(gsip_fn+".gz")
+        tif_fn = gsip_fn[:-2]+'tif' 
+        nc_fn = 'NETCDF:"%s":insolation' % gsip_fn
+        if not os.path.exists(tif_fn):
+            ds = gdal.Open(nc_fn)
+            aa = ds.GetRasterBand(1).ReadAsArray()*0.042727217           
+            writeArray2Tiff(aa,[0.05,0.05],[-180.,90.],inProjection,tif_fn,gdal.GDT_Float32)
+        
+def processGSIPtiles(tile,year,doy):
+    LLlat,LLlon = tile2latlon(tile)
+    URlat = LLlat+15.
+    LRlon = LLlon+15.
+    date = '%d%03d' % (year,doy)
+    insol24_fn = os.path.join(static_path,'INSOL24', 'RS24_%s_T%03d.tif' % (date,tile))
+    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
+    if os.path.exists(gsip_fn):
+        tif_fn = gsip_fn[:-2]+'tif' 
+        outds = gdal.Open(tif_fn)
+        outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
+                                                                            projWin=[LLlon,URlat,LRlon,LLlat],
+                                                                            resampleAlg = 'bilinear'))
+        outds = None
+    
 def downloadSubscriptionSDR(inurl=None): 
 #    if year==None:
 #        dd = datetime.date.today()+datetime.timedelta(days=-1)
@@ -189,6 +217,23 @@ def downloadSubscriptionSDR(inurl=None):
 #        month = dd.month
 #        day = dd.day
 #    filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
+    
+    # get GSIP Daily Insolation
+    ext = 'gz'
+    if inurl==None: # Use subscription
+        url = 'https://download.class.ncdc.noaa.gov/download/sub/bucricket/50155/' # FOR TESTING
+        for fn in listFD(url, ext):
+            fileName = str(fn.split(os.sep)[-1])
+            year = int(fileName.split("_")[3][1:5])
+            filePath = os.path.join(static_path,'GSIP',"%d" % year)
+            if not os.path.exists(filePath):
+                os.makedirs(filePath)
+            outName=os.path.join(filePath,fileName)
+            
+            if not os.path.isfile(outName):
+                print "downloading:  %s" % fileName
+                urllib.urlretrieve(url+fileName, outName)
+    
     #download VIIRS I5 data
     ext = 'h5'
     if inurl==None: # Use subscription
@@ -695,31 +740,6 @@ def getCFSRdata(year=None,doy=None):
             moveFiles(os.getcwd(),dstpath,date,hr)
     print "finished processing!"
     
-def convertGSIP2tiff(year,doy):
-    inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-    date = '%d%03d' % (year,doy)
-    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
-    tif_fn = gsip_fn[:-2]+'tif' 
-    nc_fn = 'NETCDF:"%s":insolation' % gsip_fn
-    if not os.path.exists(tif_fn):
-        ds = gdal.Open(nc_fn)
-        aa = ds.GetRasterBand(1).ReadAsArray()*0.042727217           
-        writeArray2Tiff(aa,[0.05,0.05],[-180.,90.],inProjection,tif_fn,gdal.GDT_Float32)
-        
-def processGSIPtiles(tile,year,doy):
-    LLlat,LLlon = tile2latlon(tile)
-    URlat = LLlat+15.
-    LRlon = LLlon+15.
-    date = '%d%03d' % (year,doy)
-    insol24_fn = os.path.join(static_path,'INSOL24', 'RS24_%s_T%03d.tif' % (date,tile))
-    if not os.path.exists(insol24_fn):
-        gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
-        tif_fn = gsip_fn[:-2]+'tif' 
-        outds = gdal.Open(tif_fn)
-        outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
-                                                                            projWin=[LLlon,URlat,LRlon,LLlat]))
-        outds = None
-    
 def createDB(year=None,doy=None):
     
     if year==None:
@@ -803,9 +823,12 @@ def runProcess(tiles,downloadurl=None):
             day = date_df['days'][i]
             ss = datetime.date(year,month,day)-datetime.date(year,1,1)
             doy = ss.days+1
-            getCFSRdata(year,doy)
-            for tile in tiles:
-                getCFSRInsolation(tile,year,doy)
+            getCFSRdata(None,None)
+#            for tile in tiles:
+#                getCFSRInsolation(tile,year,doy)
+            convertGSIP2tiff(year,doy) 
+            print("======GSIP: Subsetting tiles==========================")
+            r = Parallel(n_jobs=-1, verbose=5)(delayed(processGSIPtiles)(tile,year,doy) for tile in tiles)
     else:
         downloadurl = downloadurl+"/"
         if not downloadurl.split("/")[-2] == '001':
