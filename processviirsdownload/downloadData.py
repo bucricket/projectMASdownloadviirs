@@ -676,8 +676,11 @@ def getCFSRdata(year=None,doy=None):
         url = realtimeURL+'cdas.%d%02d%02d/' % (year,month,day)
     else:
         dd = datetime.datetime(year, 1, 1) + datetime.timedelta(doy - 1)
-        url = os.path.join(ncdcURL,"%s" % year,"%d%02d" % (year,dd.month),
+        if (datetime.date.today()-datetime.date(year,dd.month,dd.day)).days > 7:
+            url = os.path.join(ncdcfluxURL,"%s" % year,"%d%02d" % (year,dd.month),
                                 "%d%02d%02d" % (year,dd.month,dd.day))
+        else:
+            url = realtimeURL+'cdas.%d%02d%02d/' % (year,dd.month,dd.day)
     
 
     dstpath =  os.path.join(CFSR_path,"%d" % year,"%03d" % doy)
