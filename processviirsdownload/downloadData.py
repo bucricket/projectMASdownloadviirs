@@ -179,11 +179,11 @@ def get_VIIRS_bounds(fn):
 def convertGSIP2tiff(year,doy):
     inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
     date = '%d%03d' % (year,doy)
-    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
-    if os.path.exists(gsip_fn+".gz"):
-        gunzip(gsip_fn+".gz")
-        tif_fn = gsip_fn[:-2]+'tif' 
-        nc_fn = 'NETCDF:"%s":insolation' % gsip_fn
+    gsip_fn = glob.glob(os.path.join(static_path,'GSIP', "%d" % year,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
+    if os.path.exists(gsip_fn):
+        gunzip(gsip_fn)
+        tif_fn = gsip_fn[:-5]+'tif' 
+        nc_fn = 'NETCDF:"%s":insolation' % gsip_fn[:-3]
         if not os.path.exists(tif_fn):
             ds = gdal.Open(nc_fn)
             aa = ds.GetRasterBand(1).ReadAsArray()*0.042727217           
@@ -195,9 +195,8 @@ def processGSIPtiles(tile,year,doy):
     LRlon = LLlon+15.
     date = '%d%03d' % (year,doy)
     insol24_fn = os.path.join(static_path,'INSOL24', 'RS24_%s_T%03d.tif' % (date,tile))
-    gsip_fn = os.path.join(static_path,'GSIP', "%d" % year,'gsipL3_global_GDA_%s.nc' % date)
-    if os.path.exists(gsip_fn):
-        tif_fn = gsip_fn[:-2]+'tif' 
+    tif_fn = glob.glob(os.path.join(static_path,'GSIP', "%d" % year,'*.gsipL3_global_GDA_%s.tif' % date))[0]
+    if os.path.exists(tif_fn): 
         outds = gdal.Open(tif_fn)
         outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
                                                                             projWin=[LLlon,URlat,LRlon,LLlat],
@@ -224,7 +223,7 @@ def downloadSubscriptionSDR(inurl=None):
         url = 'https://download.class.ncdc.noaa.gov/download/sub/bucricket/50155/' # FOR TESTING
         for fn in listFD(url, ext):
             fileName = str(fn.split(os.sep)[-1])
-            year = int(fileName.split("_")[3][1:5])
+            year = int(fileName.split("_")[-1][0:4])
             filePath = os.path.join(static_path,'GSIP',"%d" % year)
             if not os.path.exists(filePath):
                 os.makedirs(filePath)
@@ -815,7 +814,7 @@ def createDB(year=None,doy=None):
 start = timer.time()
 
 def runProcess(tiles,downloadurl=None):
-    if downloadurl==None:
+    if downloadurl==None: # RealTime
         date_df = downloadSubscriptionSDR()
         for i in range(len(date_df)):
             year = date_df['years'][i]
@@ -961,13 +960,10 @@ def main():
 #            start = timer.time()
             runProcess(tiles,url)
         end = timer.time()
-        createDB()
-
-            
-            
+        createDB()           
         print("program duration: %f minutes" % ((end - start)/60.))
       
    
-main()      
+#main()      
 
 
