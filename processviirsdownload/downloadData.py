@@ -706,6 +706,8 @@ def getCFSRdata(year=None,doy=None):
     for j in range(2):
         dd = datetime.date(year,month,day)+datetime.timedelta(days=j)
         year = dd.year
+        month = dd.month
+        day = dd.day
         doy = (dd-datetime.date(dd.year,1,1)).days+1
         date = "%d%03d" %(year,doy)
         if realtime==1:
