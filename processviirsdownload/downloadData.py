@@ -706,14 +706,14 @@ def getCFSRdata(year=None,doy=None):
 
 #    for year in range(iyear,eyear):
 #        for doy in range(iday,eday):
-    for i in range(2):
-        dd = datetime.date(year,month,day)+datetime.timedelta(days=i)
+    for j in range(2):
+        dd = datetime.date(year,month,day)+datetime.timedelta(days=j)
         year = dd.year
         doy = (dd-datetime.date(dd.year,1,1)).days+1
         date = "%d%03d" %(year,doy)
         print "date:%s" % date
         print "============================================================"
-        if i == 0:
+        if j == 0:
             for i in range(0,8):
                 hrs = [0,0,6,6,12,12,18,18]
                 hr = hrs[i]
