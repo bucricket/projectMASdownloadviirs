@@ -829,8 +829,8 @@ def runProcess(tiles,downloadurl=None):
     if downloadurl==None: # RealTime
         dd = datetime.date.today()+datetime.timedelta(days=-1)
         year = dd.year
-#        
-#        date_df = downloadSubscriptionSDR()
+        
+        date_df = downloadSubscriptionSDR()
 #        for i in range(len(date_df)):
 #            year = date_df['years'][i]
 #            month = date_df['months'][i]
