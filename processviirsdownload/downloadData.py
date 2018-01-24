@@ -213,17 +213,11 @@ def processGSIPtiles(tile,year,doy):
         outds = None
     
 def downloadSubscriptionSDR(inurl=None): 
-#    if year==None:
-#        dd = datetime.date.today()+datetime.timedelta(days=-1)
-#        year = dd.year
-#    if doy==None:
-#        dd = datetime.date.today()+datetime.timedelta(days=-1)
-#        month = dd.month
-#        day = dd.day
-#    else:
-#        dd=datetime.datetime(year,1,1)+datetime.timedelta(days=doy)
-#        month = dd.month
-#        day = dd.day
+    if inurl==None:
+        dd = datetime.date.today()+datetime.timedelta(days=-1)
+        year = dd.year
+        month = dd.month
+        day = dd.day
 #    filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
     
     # get GSIP Daily Insolation
@@ -232,7 +226,7 @@ def downloadSubscriptionSDR(inurl=None):
         url = 'https://download.class.ncdc.noaa.gov/download/sub/bucricket/50155/' # FOR TESTING
         for fn in listFD(url, ext):
             fileName = str(fn.split(os.sep)[-1])
-            year = int(fileName.split("_")[-1][0:4])
+#            year = int(fileName.split("_")[-1][0:4])
             filePath = os.path.join(static_path,'GSIP',"%d" % year)
             if not os.path.exists(filePath):
                 os.makedirs(filePath)
@@ -252,9 +246,9 @@ def downloadSubscriptionSDR(inurl=None):
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
 #            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-            year = int(fileName.split("_")[-7][1:5])
-            month = int(fileName.split("_")[-7][5:7])
-            day = int(fileName.split("_")[-7][7:9])
+#            year = int(fileName.split("_")[-7][1:5])
+#            month = int(fileName.split("_")[-7][5:7])
+#            day = int(fileName.split("_")[-7][7:9])
             years.append(year)
             months.append(month)
             days.append(day)
@@ -277,9 +271,9 @@ def downloadSubscriptionSDR(inurl=None):
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
 #            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
-            year = int(fileName.split("_")[-7][1:5])
-            month = int(fileName.split("_")[-7][5:7])
-            day = int(fileName.split("_")[-7][7:9])
+#            year = int(fileName.split("_")[-7][1:5])
+#            month = int(fileName.split("_")[-7][5:7])
+#            day = int(fileName.split("_")[-7][7:9])
             years.append(year)
             months.append(month)
             days.append(day)
@@ -829,8 +823,8 @@ def runProcess(tiles,downloadurl=None):
     if downloadurl==None: # RealTime
         dd = datetime.date.today()+datetime.timedelta(days=-1)
         year = dd.year
-        
-        date_df = downloadSubscriptionSDR()
+#        
+#        date_df = downloadSubscriptionSDR()
 #        for i in range(len(date_df)):
 #            year = date_df['years'][i]
 #            month = date_df['months'][i]
