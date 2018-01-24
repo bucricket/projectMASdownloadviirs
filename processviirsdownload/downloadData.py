@@ -47,7 +47,14 @@ def folders(base):
     CFSR_path = os.path.join(static_path,"CFSR")   
     if not os.path.exists(CFSR_path):
         os.makedirs(CFSR_path)
-    out = {'data_path':data_path,'static_path':static_path,'CFSR_path':CFSR_path}
+    GSIP_path = os.path.join(static_path,"GSIP")   
+    if not os.path.exists(GSIP_path):
+        os.makedirs(GSIP_path)
+    insol_path = os.path.join(static_path,'INSOL24')
+    if not os.path.exists(insol_path): 
+        os.makedirs(insol_path)
+    out = {'data_path':data_path,'static_path':static_path,'CFSR_path':CFSR_path,
+           'GSIP_path':GSIP_path,'insol_path':insol_path}
     return out
 
 base = os.getcwd()
@@ -55,6 +62,8 @@ Folders = folders(base)
 data_path = Folders['data_path']
 static_path = Folders['static_path']
 CFSR_path = Folders['CFSR_path']
+GSIP_path = Folders['GSIP_path']
+insol_path = Folders['insol_path']
 
 def warp(args):
     """with a def you can easily change your subprocess call"""
@@ -179,7 +188,7 @@ def get_VIIRS_bounds(fn):
 def convertGSIP2tiff(year,doy):
     inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
     date = '%d%03d' % (year,doy)
-    gsip_fn = glob.glob(os.path.join(static_path,'GSIP', "%d" % year,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
+    gsip_fn = glob.glob(os.path.join(GSIP_path, "%d" % year,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
     if os.path.exists(gsip_fn):
         gunzip(gsip_fn)
         tif_fn = gsip_fn[:-5]+'tif' 
@@ -194,8 +203,8 @@ def processGSIPtiles(tile,year,doy):
     URlat = LLlat+15.
     LRlon = LLlon+15.
     date = '%d%03d' % (year,doy)
-    insol24_fn = os.path.join(static_path,'INSOL24', 'RS24_%s_T%03d.tif' % (date,tile))
-    tif_fn = glob.glob(os.path.join(static_path,'GSIP', "%d" % year,'*.gsipL3_global_GDA_%s.tif' % date))[0]
+    insol24_fn = os.path.join(insol_path, 'RS24_%s_T%03d.tif' % (date,tile))
+    tif_fn = glob.glob(os.path.join(GSIP_path, "%d" % year,'*.gsipL3_global_GDA_%s.tif' % date))[0]
     if os.path.exists(tif_fn): 
         outds = gdal.Open(tif_fn)
         outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
