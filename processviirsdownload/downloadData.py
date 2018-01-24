@@ -706,43 +706,78 @@ def getCFSRdata(year=None,doy=None):
 
 #    for year in range(iyear,eyear):
 #        for doy in range(iday,eday):
-    
-    date = "%d%03d" %(year,doy)
-    print "date:%s" % date
-    print "============================================================"
-    for i in range(0,8):
-        hrs = [0,0,6,6,12,12,18,18]
-        hr = hrs[i]
-        write_gen_sfc_prof(dstpath,date,hr)
-        forcastHRs = [0,3,0,3,0,3,0,3]
-        forcastHR = forcastHRs[i]
-        hr1file = 'cdas1.t%02dz.pgrbh%02d.grib2' % (hr,forcastHR)
-        
-        
-        
-        #------download file                
-        pydapURL = os.path.join(url,hr1file)
-        outFN = os.path.join(dstpath,hr1file)
-        cfsr_out = os.path.join(dstpath,"CFSR_%d%03d_%02d00_00%d.grib2" % (year,doy,hr,forcastHR))
-        if not os.path.exists(cfsr_out):
-            print "processing file...%s" % hr1file
-            print "downloading...%s" % pydapURL
-            getHTTPdata(pydapURL,outFN)
+    for i in range(2):
+        dd = datetime.date(year,month,day)+datetime.timedelta(days=i)
+        year = dd.year
+        doy = (dd-datetime.date(dd.year,1,1)).days+1
+        date = "%d%03d" %(year,doy)
+        print "date:%s" % date
+        print "============================================================"
+        if i == 0:
+            for i in range(0,8):
+                hrs = [0,0,6,6,12,12,18,18]
+                hr = hrs[i]
+                write_gen_sfc_prof(dstpath,date,hr)
+                forcastHRs = [0,3,0,3,0,3,0,3]
+                forcastHR = forcastHRs[i]
+                hr1file = 'cdas1.t%02dz.pgrbh%02d.grib2' % (hr,forcastHR)
+                
+                
+                
+                #------download file                
+                pydapURL = os.path.join(url,hr1file)
+                outFN = os.path.join(dstpath,hr1file)
+                cfsr_out = os.path.join(dstpath,"CFSR_%d%03d_%02d00_00%d.grib2" % (year,doy,hr,forcastHR))
+                if not os.path.exists(cfsr_out):
+                    print "processing file...%s" % hr1file
+                    print "downloading...%s" % pydapURL
+                    getHTTPdata(pydapURL,outFN)
+                    
+                    #------extract data
             
-            #------extract data
-    
-    
+            
+                    
+                    
+                    subprocess.check_output(["%s" % wgrib, "%s" % outFN, "-match",
+                                             "\"%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\"" % (s1,s2,s3,s4,s5,s6,s7,s8,s9,s10),
+                                             "-grib", "%s" % cfsr_out])
+                    os.remove(outFN)
+                    #-------process using grads------
+                    runGrads(cfsr_out,dstpath)    
+                    
+            #        moveFiles(os.getcwd(),dstpath,date,forcastHR,hr,"dat")
+                    moveFiles(os.getcwd(),dstpath,date,hr)
+            else: # need 1st hour of next day
+                hr = 0
+                write_gen_sfc_prof(dstpath,date,hr)
+                forcastHR = 0
+                hr1file = 'cdas1.t%02dz.pgrbh%02d.grib2' % (hr,forcastHR)
+                
+                
+                
+                #------download file                
+                pydapURL = os.path.join(url,hr1file)
+                outFN = os.path.join(dstpath,hr1file)
+                cfsr_out = os.path.join(dstpath,"CFSR_%d%03d_%02d00_00%d.grib2" % (year,doy,hr,forcastHR))
+                if not os.path.exists(cfsr_out):
+                    print "processing file...%s" % hr1file
+                    print "downloading...%s" % pydapURL
+                    getHTTPdata(pydapURL,outFN)
+                    
+                    #------extract data
             
             
-            subprocess.check_output(["%s" % wgrib, "%s" % outFN, "-match",
-                                     "\"%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\"" % (s1,s2,s3,s4,s5,s6,s7,s8,s9,s10),
-                                     "-grib", "%s" % cfsr_out])
-            os.remove(outFN)
-            #-------process using grads------
-            runGrads(cfsr_out,dstpath)    
-            
-    #        moveFiles(os.getcwd(),dstpath,date,forcastHR,hr,"dat")
-            moveFiles(os.getcwd(),dstpath,date,hr)
+                    
+                    
+                    subprocess.check_output(["%s" % wgrib, "%s" % outFN, "-match",
+                                             "\"%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\"" % (s1,s2,s3,s4,s5,s6,s7,s8,s9,s10),
+                                             "-grib", "%s" % cfsr_out])
+                    os.remove(outFN)
+                    #-------process using grads------
+                    runGrads(cfsr_out,dstpath)    
+                    
+            #        moveFiles(os.getcwd(),dstpath,date,forcastHR,hr,"dat")
+                    moveFiles(os.getcwd(),dstpath,date,hr)
     print "finished processing!"
     
 def createDB(year=None,doy=None):
