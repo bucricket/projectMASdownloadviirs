@@ -686,9 +686,7 @@ def getCFSRdata(year=None,doy=None):
             url = realtimeURL+'cdas.%d%02d%02d/' % (year,dd.month,dd.day)
     
 
-    dstpath =  os.path.join(CFSR_path,"%d" % year,"%03d" % doy)
-    if not os.path.exists(dstpath):
-        os.makedirs(dstpath) 
+
     levs="(100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|925|950|975|1000) mb"
 
     
@@ -711,6 +709,9 @@ def getCFSRdata(year=None,doy=None):
         year = dd.year
         doy = (dd-datetime.date(dd.year,1,1)).days+1
         date = "%d%03d" %(year,doy)
+        dstpath =  os.path.join(CFSR_path,"%d" % year,"%03d" % doy)
+        if not os.path.exists(dstpath):
+            os.makedirs(dstpath) 
         print "date:%s" % date
         print "============================================================"
         if j == 0:
