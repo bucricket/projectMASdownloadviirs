@@ -218,6 +218,7 @@ def downloadSubscriptionSDR(inurl=None):
         year = dd.year
         month = dd.month
         day = dd.day
+        doy = (dd-datetime.date(year,1,1)).days+1
 #    filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
     
     # get GSIP Daily Insolation
@@ -227,7 +228,7 @@ def downloadSubscriptionSDR(inurl=None):
         for fn in listFD(url, ext):
             fileName = str(fn.split(os.sep)[-1])
             strdate = (fileName.split("_")[-1]).split(".")[0]
-            if (strdate=='d%d%02d%02d' % (year,month,day)):    
+            if (strdate=='%d%03d' % (year,doy)):   
                 filePath = os.path.join(static_path,'GSIP',"%d" % year)
                 if not os.path.exists(filePath):
                     os.makedirs(filePath)
