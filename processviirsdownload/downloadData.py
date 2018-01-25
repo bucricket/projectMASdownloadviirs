@@ -226,15 +226,16 @@ def downloadSubscriptionSDR(inurl=None):
         url = 'https://download.class.ncdc.noaa.gov/download/sub/bucricket/50155/' # FOR TESTING
         for fn in listFD(url, ext):
             fileName = str(fn.split(os.sep)[-1])
-#            year = int(fileName.split("_")[-1][0:4])
-            filePath = os.path.join(static_path,'GSIP',"%d" % year)
-            if not os.path.exists(filePath):
-                os.makedirs(filePath)
-            outName=os.path.join(filePath,fileName)
-            
-            if not os.path.isfile(outName):
-                print "downloading:  %s" % fileName
-                urllib.urlretrieve(url+fileName, outName)
+            strdate = (fileName.split("_")[-1]).split(".")[0]
+            if (strdate=='d%d%02d%02d' % (year,month,day)):    
+                filePath = os.path.join(static_path,'GSIP',"%d" % year)
+                if not os.path.exists(filePath):
+                    os.makedirs(filePath)
+                outName=os.path.join(filePath,fileName)
+                
+                if not os.path.isfile(outName):
+                    print "downloading:  %s" % fileName
+                    urllib.urlretrieve(url+fileName, outName)
     
     #download VIIRS I5 data
     ext = 'h5'
@@ -245,22 +246,22 @@ def downloadSubscriptionSDR(inurl=None):
         days = []
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
-#            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
+            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
 #            year = int(fileName.split("_")[-7][1:5])
 #            month = int(fileName.split("_")[-7][5:7])
 #            day = int(fileName.split("_")[-7][7:9])
-            years.append(year)
-            months.append(month)
-            days.append(day)
-            filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
-            if not os.path.exists(filePath):
-                os.makedirs(filePath)
-        
-            outName=os.path.join(filePath,fileName)
+                years.append(year)
+                months.append(month)
+                days.append(day)
+                filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
+                if not os.path.exists(filePath):
+                    os.makedirs(filePath)
             
-            if not os.path.isfile(outName):
-                print "downloading:  %s" % fileName
-                urllib.urlretrieve(url+fileName, outName)
+                outName=os.path.join(filePath,fileName)
+                
+                if not os.path.isfile(outName):
+                    print "downloading:  %s" % fileName
+                    urllib.urlretrieve(url+fileName, outName)
 
     # download VIIRS cloud data
     if inurl==None:
@@ -270,22 +271,22 @@ def downloadSubscriptionSDR(inurl=None):
         days = []
         for fn in listFD(url, ext):
             fileName = str(fn.split('/')[-1])  
-#            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
+            if (fileName.split("_")[2]=='d%d%02d%02d' % (year,month,day)):
 #            year = int(fileName.split("_")[-7][1:5])
 #            month = int(fileName.split("_")[-7][5:7])
 #            day = int(fileName.split("_")[-7][7:9])
-            years.append(year)
-            months.append(month)
-            days.append(day)
-            filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
-            if not os.path.exists(filePath):
-                os.makedirs(filePath)
-        
-            outName=os.path.join(filePath,fileName)
+                years.append(year)
+                months.append(month)
+                days.append(day)
+                filePath = os.path.join(data_path,"%d" % year,"%02d" % month)
+                if not os.path.exists(filePath):
+                    os.makedirs(filePath)
             
-            if not os.path.isfile(outName):
-                print "downloading:  %s" % fileName
-                urllib.urlretrieve(url+fileName, outName)
+                outName=os.path.join(filePath,fileName)
+                
+                if not os.path.isfile(outName):
+                    print "downloading:  %s" % fileName
+                    urllib.urlretrieve(url+fileName, outName)
     else: # for Non-subscription 
         
         # put in staging area first and then put data in proper location
