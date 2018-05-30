@@ -224,7 +224,8 @@ def downloadSubscriptionSDR(inurl=None):
     # get GSIP Daily Insolation
     ext = 'gz'
     if inurl==None: # Use subscription
-        url = 'https://download.class.ncdc.noaa.gov/download/sub/bucricket/50155/' # FOR TESTING
+        # url = 'https://download.class.ncdc.noaa.gov/download/sub/bucricket/50155/' # FOR TESTING
+        url = 'https://download.avl.class.noaa.gov/download/sub/bucricket/50155/' # CLASS changed link on 5/23/18
         for fn in listFD(url, ext):
             fileName = str(fn.split(os.sep)[-1])
             strdate = (fileName.split("_")[-1]).split(".")[0]
